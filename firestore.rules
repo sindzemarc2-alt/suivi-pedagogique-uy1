@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signed() { return request.auth != null; }
+    function isAdmin() {
+      return signed() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Comptes administrateurs : créés à la main dans la console (jamais depuis l'app)
+    match /admins/{uid} {
+      allow read: if signed() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Données PUBLIQUES d'une UE (portail : intitulé, enseignant, heures, salle…)
+    match /ues/{code} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (signed() && resource.data.get('teacherUid', '') == request.auth.uid
+            && request.resource.data.teacherUid == request.auth.uid)
+        || (signed() && resource.data.get('teacherUid', '') == ''
+            && request.resource.data.teacherUid == request.auth.uid);
+    }
+
+    // Données PRIVÉES : notes, appel, historique → enseignant de l'UE ou admin
+    match /ues_private/{code} {
+      allow read, write: if isAdmin()
+        || (signed() && get(/databases/$(database)/documents/ues/$(code)).data.get('teacherUid', '') == request.auth.uid);
+    }
+
+    // Listes d'étudiants (noms + matricules)
+    match /system/class_lists {
+      allow read: if signed();
+      allow write: if isAdmin();
+    }
+
+    // Notifications : tout compte connecté peut en créer, seul l'admin les lit/supprime
+    match /admin_notifications/{id} {
+      allow create: if signed();
+      allow read, delete: if isAdmin();
+    }
+  }
+}
