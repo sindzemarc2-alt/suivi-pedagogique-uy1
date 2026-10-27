@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration • UY1 ICT4D</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        uyblue: { 50: '#f0f7ff', 100: '#e0effe', 600: '#0284c7', 800: '#075985', 900: '#0c4a6e' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@0.469.0"></script>
+
+    <!-- Parsers de documents client-side -->
+    <!-- 1. Excel parser (SheetJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- 2. PDF parser (PDF.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
+    <!-- 3. Word docx parser (Mammoth.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+    <!-- 4. jsPDF & AutoTable pour l'exportation des PV officiels -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+    <!-- Thème : polices, couleurs et mouvement -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+    <style>
+        :root{--ink:#0b2545;--ink2:#13315c;--signal:#ffd166}
+        body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif}
+        h1,h2,h3,.font-display{font-family:'Bricolage Grotesque','Figtree',sans-serif;letter-spacing:-.01em}
+        .hero{background:radial-gradient(120% 150% at 0% 0%,var(--ink2) 0%,var(--ink) 62%);box-shadow:0 24px 50px -28px rgba(11,37,69,.75)}
+        .board-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1;color:var(--signal);font-variant-numeric:tabular-nums}
+        .board dt{margin-top:.4rem;font-size:.72rem;line-height:1.25;color:rgba(224,239,254,.78)}
+        #uesGrid>div{border-radius:1.25rem;transition:transform .18s ease,box-shadow .18s ease,border-color .18s}
+        #uesGrid>div:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(11,37,69,.55)}
+        .bar-fill{width:var(--w)}
+        @keyframes grow{from{width:0}}
+        html.intro .bar-fill,html.intro #statBar{animation:grow .9s cubic-bezier(.2,.7,.2,1) both}
+        @keyframes viewIn{from{opacity:0;transform:translateY(6px)}}
+        #view-portal,#view-teacher,#view-admin{animation:viewIn .22s ease-out}
+        :focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+        .bot-msg{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;line-height:1.45}
+        .bot-dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;animation:botblink 1s infinite both}
+        .bot-dots i:nth-child(2){animation-delay:.15s}.bot-dots i:nth-child(3){animation-delay:.3s}
+        @keyframes botblink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+        /* Mode sombre */
+        html.dark{color-scheme:dark}
+        html.dark,html.dark body{background:#0a1222!important}
+        .dark .bg-white{background:#111c33!important}
+        .dark .bg-slate-50,.dark .bg-slate-50\/50{background:#0f1a30!important}
+        .dark .bg-slate-100{background:#16233f!important}
+        .dark .bg-slate-200{background:#1d2c4b!important}
+        .dark .text-slate-900,.dark .text-slate-800{color:#e8eef8!important}
+        .dark .text-slate-700,.dark .text-slate-600{color:#b9c5da!important}
+        .dark .text-slate-500,.dark .text-slate-400{color:#8c9bb5!important}
+        .dark .border-slate-100,.dark .border-slate-200,.dark .border-slate-300{border-color:#243453!important}
+        .dark .divide-slate-200>*+*{border-color:#243453!important}
+        .dark .bg-sky-100{background:#12304d!important}
+        .dark .text-sky-900,.dark .text-sky-800{color:#bde0fe!important}
+        .dark .bg-amber-50{background:#3a2a10!important}
+        .dark .bg-rose-50{background:#3b1620!important}
+        .dark .bg-emerald-50{background:#0f2f2a!important}
+        .dark input,.dark select,.dark textarea{background:#0f1a30!important;color:#e8eef8!important;border-color:#243453!important}
+    </style>
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-sky-200">
+
+    <!-- ============================================== -->
+    <!-- ALERTE D'ABSENCE D'ENSEIGNANT (TEMPS RÉEL)    -->
+    <!-- ============================================== -->
+    <div id="globalAbsenceAlert" class="hidden bg-amber-500 text-white px-4 py-2 text-sm font-semibold shadow-md flex items-center justify-between no-print transition-all">
+        <div class="flex items-center space-x-2 container mx-auto">
+            <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 animate-pulse"></i>
+            <span id="globalAbsenceText">Alerte : Un enseignant a signalé son absence pour aujourd'hui.</span>
+        </div>
+        <button onclick="document.getElementById('globalAbsenceAlert').classList.add('hidden')" class="text-white hover:text-amber-100">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    <header class="bg-gradient-to-r from-sky-950 via-slate-900 to-sky-900 text-white shadow-lg sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 sm:h-20">
+                <!-- Logo & Titre UY1 -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="handleLogoClick()">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl shadow-md flex items-center justify-center p-1 border-2 border-sky-400">
+                        <i data-lucide="graduation-cap" class="w-7 h-7 sm:w-8 sm:h-8 text-sky-800"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg sm:text-xl font-black tracking-tight text-white">UY1 • ICT4D</span>
+                            <span class="bg-sky-500/30 text-sky-300 text-xs px-2 py-0.5 rounded-full border border-sky-400/30 font-semibold hidden sm:inline">Administration</span>
+                        </div>
+                        <p class="text-xs text-sky-200 hidden sm:block">Faculté des Sciences • Département d'Informatique</p>
+                    </div>
+                </div>
+
+                <!-- Navigation droite -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="toggleTheme()" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Mode clair / sombre" aria-label="Changer de thème"><i data-lucide="moon" class="w-5 h-5"></i></button>
+                    <a href="index.html" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Portail</span></a>
+                    <span id="adminModeIndicator" class="hidden items-center px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold"><i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Admin Connecté</span>
+                    <button id="btnAdminNav" onclick="handleAdminButtonClick()" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="shield" class="w-4 h-4"></i><span id="btnAdminNavText">Connexion Admin</span></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ÉCRAN VERROUILLÉ (tant que l'admin n'est pas connecté) -->
+        <div id="view-locked" class="space-y-6">
+            <div class="max-w-md mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-8 text-center space-y-4 mt-10">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-900 text-white flex items-center justify-center"><i data-lucide="lock" class="w-7 h-7"></i></div>
+                <h1 class="text-2xl font-extrabold text-slate-900">Espace administrateur</h1>
+                <p class="text-sm text-slate-500">Accès réservé. Connectez-vous avec votre compte administrateur pour continuer.</p>
+                <button onclick="openAdminModal()" class="w-full py-3 bg-sky-900 hover:bg-sky-800 text-white rounded-xl font-bold text-sm">Se connecter</button>
+                <a href="index.html" class="block text-xs text-sky-700 hover:underline">Retour au portail</a>
+            </div>
+        </div>
+
+<!-- VUE 2 : ESPACE ENSEIGNANT SÉCURISÉ (UE ACTIVE) -->
+        <div id="view-teacher" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <span id="activeUeCode" class="text-xl sm:text-2xl font-black text-sky-900 bg-sky-100 px-3 py-1 rounded-xl">ICT101</span>
+                        <h2 id="activeUeTitle" class="text-xl sm:text-2xl font-bold text-slate-900">Intitulé du cours</h2>
+                    </div>
+                    <p class="text-slate-500 text-xs sm:text-sm mt-1 flex items-center space-x-2">
+                        <span>Enseignant(e) titulaire :</span>
+                        <strong id="activeUeTeacherName" class="text-slate-800 font-bold">Non défini</strong>
+                        <span>•</span>
+                        <span id="activeUeLevelSem" class="text-sky-700 font-semibold">Niveau 1 - S1</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="sendPasswordReset()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
+                        <i data-lucide="key-round" class="w-4 h-4 text-slate-500"></i>
+                        <span>Changer mon Mot de passe</span>
+                    </button>
+                    <button onclick="exitAndLockTeacherWorkspace()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition shadow">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>Quitter & Verrouiller l'UE</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Boîtes d'informations de cours -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Volume Horaire</span>
+                        <i data-lucide="clock" class="w-5 h-5 text-sky-600"></i>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="activeHoursTaught" class="text-3xl font-black text-slate-900">0h</span>
+                        <span class="text-slate-400 font-medium">/ 45h requis</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="activeHoursProgress" class="bg-sky-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-500">
+                        <span id="activeHoursPercent">0% d'avancement</span>
+                        <span>Objectif semestriel</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Salle & Créneau</span>
+                        <i data-lucide="map-pin" class="w-5 h-5 text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-slate-900" id="activeScheduleRoom">Salle S003 (Amphi)</div>
+                        <p class="text-xs text-slate-500" id="activeScheduleDay">Mercredi • 08h00 - 11h00</p>
+                    </div>
+                    <p class="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-1 rounded-md inline-block">
+                        Programmation officielle UY1
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pointage de Séance</span>
+                        <p class="text-xs text-slate-500 mt-1">Validez votre présence pour comptabiliser automatiquement 3h de cours.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="confirmTeacherPresenceSession()" class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-sm">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Confirmer ma séance (+3h)</span>
+                        </button>
+                        <button onclick="toggleTeacherAbsence()" id="btnSignalAbsence" class="w-full py-1.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition">
+                            <i data-lucide="bell-off" class="w-3.5 h-3.5"></i>
+                            <span id="btnSignalAbsenceText">Signaler mon indisponibilité</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglets de l'enseignant -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="flex border-b border-slate-200 bg-slate-50/50 p-2 gap-2 overflow-x-auto">
+                    <button onclick="setTeacherTab('cc')" id="tabBtnCc" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition bg-white text-sky-900 shadow-sm">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                        <span>Évaluations & Notes de CC</span>
+                    </button>
+                    <button onclick="setTeacherTab('attendance')" id="tabBtnAttendance" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition text-slate-600 hover:text-slate-900">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        <span>Fiche d'Appel & Présences</span>
+                    </button>
+                    <button onclick="setTeacherTab('history')" id="tabBtnHistory" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition text-slate-600 hover:text-slate-900">
+                        <i data-lucide="history" class="w-4 h-4"></i>
+                        <span>Historique des Modifications</span>
+                    </button>
+                </div>
+
+                <!-- Onglet CC -->
+                <div id="teacherTabContent-cc" class="p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Tableau des Évaluations de Contrôle Continu</h3>
+                            <p class="text-xs text-slate-500">Ajoutez autant de CC que souhaité. Le total final sur 20 est calculé automatiquement.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="openAddCcModal()" class="px-3.5 py-2 bg-sky-900 hover:bg-sky-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>Ajouter un CC</span>
+                            </button>
+                            <button onclick="exportCcExcel()" class="px-3.5 py-2 bg-green-700 hover:bg-green-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                <span>Exporter en Excel</span>
+                            </button>
+                            <button onclick="generateOfficialCcPdf()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                <span>Télécharger le PV des Notes (PDF)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200" id="ccTableHeaderRow">
+                                    <th class="p-3 w-12 text-center">N°</th>
+                                    <th class="p-3 w-28">Matricule</th>
+                                    <th class="p-3">Nom & Prénoms de l'Étudiant</th>
+                                    <th class="p-3 w-24 text-center bg-sky-50 text-sky-950 font-black">Note CC / 20</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ccTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Données étudiants injectées en JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglet Fiche d'Appel -->
+                <div id="teacherTabContent-attendance" class="hidden p-6 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Appel des Étudiants en Direct</h3>
+                            <p class="text-xs text-slate-500">Sélectionnez la date du cours et pointez chaque étudiant : Vert = Présent, Rouge = Absent.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-xs font-semibold text-slate-600">Date de la séance :</label>
+                                <input type="date" id="attendanceDatePicker" onchange="loadAttendanceForDate()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <button onclick="markAllPresent()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Tous Présents</button>
+                            <button onclick="generateAttendancePdf()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                <span>Export Fiche Appel (PDF)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Importer la liste d'étudiants pour l'appel</p>
+                                <p id="classListSourceHint" class="text-xs text-slate-500">Excel, CSV, PDF, Word, ou saisie manuelle. La liste est enregistrée pour ce cours.</p>
+                            </div>
+                            <button onclick="openPasteListModal('ue')" class="px-3 py-1.5 bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-semibold">Coller une liste</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input type="file" id="teacherImportFileInput" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt" onchange="handleClassListFileUpload(event, 'ue')" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 cursor-pointer border border-indigo-200 rounded-xl p-1 bg-white">
+                            <input type="text" id="teacherStudentMatInput" placeholder="Matricule" class="px-3 py-2 border border-indigo-200 rounded-xl text-xs font-mono">
+                            <div class="flex gap-2">
+                                <input type="text" id="teacherStudentNameInput" placeholder="Nom et prénoms" class="flex-1 px-3 py-2 border border-indigo-200 rounded-xl text-xs">
+                                <button onclick="addStudentToUeList()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Ajouter</button>
+                            </div>
+                        </div>
+                        <div id="teacherImportFeedback" class="hidden p-3 bg-white border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between gap-3">
+                            <span id="teacherImportFeedbackText"></span>
+                            <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm">Enregistrer pour l'appel</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                            <span class="text-xs text-slate-500 font-medium">Inscrits</span>
+                            <div id="attendanceTotalCount" class="text-xl font-bold text-slate-800">0</div>
+                        </div>
+                        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-center">
+                            <span class="text-xs text-emerald-700 font-medium">Présents</span>
+                            <div id="attendancePresentCount" class="text-xl font-bold text-emerald-700">0</div>
+                        </div>
+                        <div class="bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
+                            <span class="text-xs text-rose-700 font-medium">Absents</span>
+                            <div id="attendanceAbsentCount" class="text-xl font-bold text-rose-700">0</div>
+                        </div>
+                        <div class="bg-sky-50 p-3 rounded-xl border border-sky-200 text-center">
+                            <span class="text-xs text-sky-800 font-medium">Taux de présence</span>
+                            <div id="attendanceRate" class="text-xl font-bold text-sky-900">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                    <th class="p-3 w-12 text-center">N°</th>
+                                    <th class="p-3 w-32">Matricule</th>
+                                    <th class="p-3">Nom & Prénoms</th>
+                                    <th class="p-3 w-40 text-center">Statut d'Appel</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTableBody" class="divide-y divide-slate-200 bg-white">
+                                <!-- Généré en JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Onglet Historique -->
+                <div id="teacherTabContent-history" class="hidden p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Journal d'Audit & Historique</h3>
+                            <p class="text-xs text-slate-500">Chaque ajout de note, validation horaire ou modification est horodaté dans Firebase.</p>
+                        </div>
+                        <button onclick="clearCourseHistory()" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg">Purger l'historique de cette UE</button>
+                    </div>
+
+                    <div id="historyList" class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+                        <!-- Rempli en JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 3 : TABLEAU DE BORD SUPERVISEUR ADMIN -->
+        <div id="view-admin" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-lg border border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-sky-500/20 rounded-xl border border-sky-400/30 text-sky-300">
+                            <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="text-2xl font-black tracking-tight">Supervision Générale de l'Administration</h2>
+                    </div>
+                    <p class="text-sky-200/80 text-xs sm:text-sm mt-2 max-w-2xl">
+                        Surveillance en direct des cours, progression horaire, attribution des UE par email, occupation des salles et import des listes.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="sendPasswordReset()" class="px-4 py-2 bg-sky-800 hover:bg-sky-700 text-sky-200 hover:text-white font-semibold text-xs sm:text-sm rounded-xl transition border border-sky-600/40 flex items-center space-x-1.5 shadow">
+                        <i data-lucide="key" class="w-4 h-4"></i>
+                        <span>Changer le MDP Maître Admin</span>
+                    </button>
+                    <!-- BOUTON DÉCONNEXION STRICTE ADMIN -->
+                    <button onclick="exitAdminView()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm rounded-xl transition shadow flex items-center space-x-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Déconnexion Sécurisée</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Activité en direct -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>Notifications (réservées à cet espace)</h3>
+                    <div class="flex items-center gap-3">
+                        <span id="adminNotifBadge" class="hidden min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full items-center justify-center"></span>
+                        <button onclick="openAdminNotificationsModal()" class="text-xs text-sky-700 hover:underline font-semibold">Tout voir</button>
+                    </div>
+                </div>
+                <div id="adminLiveFeed" class="space-y-1.5"><p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p></div>
+            </div>
+
+            <!-- Statistiques globales -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Matières UEs</span>
+                    <div id="adminStatTotalUes" class="text-3xl font-black text-slate-900 mt-2">0</div>
+                    <p class="text-xs text-slate-500 mt-1">Niveau 1, 2 et 3 (S1 + S2)</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avancement Global</span>
+                    <div id="adminStatAvgProgress" class="text-3xl font-black text-sky-700 mt-2">0%</div>
+                    <p class="text-xs text-slate-500 mt-1">Moyenne des heures exécutées</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contrôles Continus Réalisés</span>
+                    <div id="adminStatTotalCcs" class="text-3xl font-black text-emerald-600 mt-2">0</div>
+                    <p class="text-xs text-slate-500 mt-1">Toutes promotions confondues</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Absences Signalées</span>
+                    <div id="adminStatAbsences" class="text-3xl font-black text-amber-600 mt-2">0</div>
+                    <p class="text-xs text-slate-500 mt-1">Enseignants indisponibles</p>
+                </div>
+            </div>
+
+            <!-- Occupation des salles UY1 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="layout-grid" class="w-5 h-5 text-sky-700"></i>
+                        <h3 class="text-base font-bold text-slate-900">État d'Occupation des Salles (Faculté des Sciences)</h3>
+                    </div>
+                    <span class="text-xs font-medium text-slate-500">Statut en temps réel</span>
+                </div>
+
+                <div id="roomsOccupancyGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Rempli en JS -->
+                </div>
+            </div>
+
+            <!-- Module d'import de liste de classe (Excel, PDF, Word, Texte) -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="upload-cloud" class="w-5 h-5 text-indigo-600"></i>
+                            <span>Importation des Listes d'Étudiants par Niveau</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Téléversez le fichier officiel (Excel .xlsx, PDF, Word .docx ou collez le texte). Les matricules et noms seront synchronisés pour tous les cours du niveau.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700">Promotion / Niveau Cible :</label>
+                        <select id="importLevelSelect" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500">
+                            <option value="1">Niveau 1 (ICTL1 - Tronc Commun)</option>
+                            <option value="2">Niveau 2 (ICTL2 - GL, Réseau, Sécurité)</option>
+                            <option value="3">Niveau 3 (ICTL3 - GL, RAM, Sécurité)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-slate-700">Fichier (Excel, PDF, Word) :</label>
+                        <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt" onchange="handleClassListFileUpload(event, 'level')" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer border border-slate-300 rounded-xl p-1 bg-slate-50">
+                    </div>
+
+                    <div class="space-y-1.5 flex flex-col justify-end">
+                        <button onclick="openPasteListModal('level')" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 transition">
+                            <i data-lucide="clipboard-type" class="w-4 h-4"></i>
+                            <span>Coller du texte brut (Matricule + Nom)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="importFeedback" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-2">
+                    <div class="flex items-center justify-between gap-3">
+                        <span id="importFeedbackText">120 étudiants chargés avec succès.</span>
+                        <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm whitespace-nowrap">Enregistrer dans Firebase</button>
+                    </div>
+                    <div id="importPreviewTable" class="max-h-40 overflow-y-auto text-[11px] font-mono text-slate-700"></div>
+                </div>
+                <p id="classListStats" class="text-xs text-slate-500">Aucune liste enregistrée pour le moment.</p>
+            </div>
+
+            <!-- Registre global des UEs avec mots de passe en direct -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Registre Global des Enseignements & Mots de Passe</h3>
+                        <p class="text-xs text-slate-500">Visualisez en temps réel qui enseigne quoi, attribuez les matières par email et accédez directement au cours en tant qu'administrateur.</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="migrateOldData()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Migrer les anciennes données</button>
+                        <button onclick="syncTimetable()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Synchroniser l'emploi du temps</button>
+                        <input type="text" id="adminSearchUe" onkeyup="filterAdminUeTable()" placeholder="Rechercher code, prof, matière..." class="px-3 py-1.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 w-48 sm:w-64">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                <th class="p-3">UE Code</th>
+                                <th class="p-3">Niv/Sem</th>
+                                <th class="p-3">Intitulé</th>
+                                <th class="p-3">Enseignant Titulaire</th>
+                                <th class="p-3 text-center">Progression</th>
+                                <th class="p-3 text-center">CCs</th>
+                                
+                                <th class="p-3 text-center">Statut</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUeTableBody" class="divide-y divide-slate-200 bg-white font-medium">
+                            <!-- Généré en JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Notifications Administrateur (Supprimables dans Firebase) -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="bell-ring" class="w-5 h-5 text-amber-500"></i>
+                            <span>Journal des Notifications Administrateur</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Historique des connexions des enseignants et alertes d'absences.</p>
+                    </div>
+                    <button onclick="deleteAllAdminNotifications()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold flex items-center space-x-1">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <span>Tout supprimer de Firebase</span>
+                    </button>
+                </div>
+
+                <div id="adminNotificationsList" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+                    <!-- Rempli en JS -->
+                </div>
+            </div>
+        </div>
+
+        </main>
+
+<!-- MODAL 2 : AUTHENTIFICATION ADMINISTRATEUR -->
+    <div id="modalAdminAuth" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-slate-900 text-sky-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="shield" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-black text-slate-900">Espace Administrateur / Doyen</h3>
+                    <p class="text-xs text-slate-500">Connectez-vous avec votre compte administrateur.</p>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-700">Email administrateur :</label>
+                <input type="email" id="adminAuthEmailInput" autocomplete="email" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <label class="text-xs font-bold text-slate-700">Mot de passe :</label>
+                <div class="relative">
+                    <input type="password" id="adminAuthPasswordInput" onkeydown="if(event.key==='Enter') submitAdminAuth()" placeholder="Entrez le mot de passe admin..." class="w-full p-3 pr-10 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 font-mono">
+                    <button type="button" onclick="togglePasswordVisibility('adminAuthPasswordInput', 'adminPwdToggleIcon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                        <i data-lucide="eye" id="adminPwdToggleIcon" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="adminAuthErrorMessage" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-semibold flex items-center space-x-1.5">
+                <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                <span id="adminAuthErrorText">Mot de passe maître invalide.</span>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button onclick="closeAdminAuthModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
+                <button onclick="submitAdminAuth()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-sky-400 rounded-xl text-xs font-bold transition shadow flex items-center space-x-1.5">
+                    <i data-lucide="unlock" class="w-4 h-4"></i>
+                    <span>Ouvrir l'Espace Admin</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3 : CHANGEMENT DE MOT DE PASSE (ENSEIGNANT) -->
+    <!-- MODAL 4 : CHANGEMENT MOT DE PASSE MAÎTRE ADMIN -->
+    <!-- MODAL 5 : AJOUT D'UN CC -->
+    <div id="modalAddCc" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="plus-circle" class="w-5 h-5 text-sky-700"></i>
+                <span>Nouvelle Évaluation de CC</span>
+            </h3>
+            <p class="text-xs text-slate-500">Spécifiez le libellé et le barème. La moyenne finale sur 20 sera recalculée automatiquement.</p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-700">Intitulé du CC :</label>
+                    <input type="text" id="newCcTitleInput" placeholder="Ex: CC1 (Interrogation écrite)" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700">Barème d'évaluation :</label>
+                    <input type="number" id="newCcMaxInput" value="20" min="5" max="100" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700">Date de l'évaluation :</label>
+                    <input type="date" id="newCcDateInput" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2">
+                <button onclick="closeAddCcModal()" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Annuler</button>
+                <button onclick="confirmCreateNewCc()" class="px-4 py-2 bg-sky-900 text-white rounded-xl text-xs font-bold">Créer le CC</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6 : COLLAGE MANUEL DE LISTE D'ÉTUDIANTS -->
+    <div id="modalPasteList" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <i data-lucide="clipboard-copy" class="w-5 h-5 text-indigo-600"></i>
+                <span>Coller la liste des Étudiants</span>
+            </h3>
+            <p class="text-xs text-slate-500">Format attendu : une ligne par étudiant : <code class="bg-slate-100 p-0.5 rounded font-mono">MATRICULE Nom et Prénoms</code></p>
+
+            <textarea id="pasteListTextarea" rows="8" placeholder="Exemple :&#10;21U2345 FOE BIDIMA JEAN PAUL&#10;22V8912 NANA KAMGA PATRICE" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-sky-500"></textarea>
+
+            <div class="flex items-center justify-end space-x-2">
+                <button onclick="closePasteListModal()" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Annuler</button>
+                <button onclick="parseAndProcessPastedList()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold">Analyser & Charger</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- ============================================== -->
+    <!-- INITIALISATION FIREBASE & APPLICATION RAPIDE   -->
+    <!-- ============================================== -->
+        <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            onSnapshot, 
+            deleteDoc, 
+            getDocs,
+            writeBatch,
+            deleteField,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCcygRkxijLObPkp-IlCQDYcZrtTAnyrIE",
+            authDomain: "suivi-pedagogique-cours.firebaseapp.com",
+            projectId: "suivi-pedagogique-cours",
+            storageBucket: "suivi-pedagogique-cours.firebasestorage.app",
+            messagingSenderId: "2733839837",
+            appId: "1:2733839837:web:428d75a9e634040575d234"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        setPersistence(auth, inMemoryPersistence); // la session ne survit jamais à un rechargement
+
+        // PROGRAMME OFFICIEL DES MATIÈRES ICT4D
+        const PROGRAM_STRUCTURE = [
+            // NIVEAU 1 - S1
+            { code: "ICT101", level: 1, semester: 1, defaultTitle: "Algorithmique et Programmation Impérative", defaultRoom: "R101", defaultSchedule: "Mercredi 12h00-15h00 (G1) / Vendredi 08h00-11h00 (G2)" },
+            { code: "ICT103", level: 1, semester: 1, defaultTitle: "Architecture et Fonctionnement des Ordinateurs", defaultRoom: "R101", defaultSchedule: "Mardi 08h00-11h00 (G2) / Vendredi 12h00-15h00 (G1)" },
+            { code: "ICT105", level: 1, semester: 1, defaultTitle: "Systèmes d'Exploitation 1 (Bases & Linux)", defaultRoom: "R101", defaultSchedule: "Lundi 08h00-11h00 (G1) / Samedi 12h00-15h00 (G2)" },
+            { code: "ICT107", level: 1, semester: 1, defaultTitle: "Mathématiques pour l'Informatique 1 (Algèbre)", defaultRoom: "R101", defaultSchedule: "Lundi 12h00-15h00 (G1) / Jeudi 08h00-11h00 (G2)" },
+            { code: "ICT109", level: 1, semester: 1, defaultTitle: "Introduction aux Réseaux Informatiques", defaultRoom: "R101", defaultSchedule: "Mardi 12h00-15h00 (G2) / Jeudi 12h00-15h00 (G1)" },
+            { code: "ICT111", level: 1, semester: 1, defaultTitle: "Électronique Numérique et Circuits Logiques", defaultRoom: "R101", defaultSchedule: "Mercredi 08h00-11h00 (G1) / Samedi 08h00-11h00 (G2)" },
+
+            // NIVEAU 1 - S2
+            { code: "ICT102", level: 1, semester: 2, defaultTitle: "Structures de Données et Algorithmes Avancés", defaultRoom: "R101", defaultSchedule: "Lundi 08h-11h" },
+            { code: "ICT104", level: 1, semester: 2, defaultTitle: "Bases de Données Relationnelles (Conception & SQL)", defaultRoom: "R101", defaultSchedule: "Mardi 08h-11h" },
+            { code: "ICT106", level: 1, semester: 2, defaultTitle: "Développement Web Fondamental (HTML/CSS/JS)", defaultRoom: "R101", defaultSchedule: "Mercredi 10h-13h" },
+            { code: "ICT108", level: 1, semester: 2, defaultTitle: "Mathématiques pour l'Informatique 2 (Analyse)", defaultRoom: "R101", defaultSchedule: "Jeudi 08h-11h" },
+            { code: "ICT110", level: 1, semester: 2, defaultTitle: "Probabilités et Statistiques Appliquées", defaultRoom: "R101", defaultSchedule: "Vendredi 10h-13h" },
+            { code: "FRAN104", level: 1, semester: 2, defaultTitle: "Techniques d'Expression Française 1", defaultRoom: "R101", defaultSchedule: "Samedi 08h-10h" },
+            { code: "ENG104", level: 1, semester: 2, defaultTitle: "English Language Proficiency 1", defaultRoom: "R101", defaultSchedule: "Samedi 10h-12h" },
+
+            // NIVEAU 2 - S1
+            { code: "ICT201", level: 2, semester: 1, defaultTitle: "Programmation Orientée Objet (Java/C++)", defaultRoom: "S003/S008", defaultSchedule: "Mardi 11h30-14h30 (G1) / Vendredi 11h30-14h30 (G2)" },
+            { code: "ICT203", level: 2, semester: 1, defaultTitle: "Systèmes d'Information et Génie Logiciel 1", defaultRoom: "S003/S008", defaultSchedule: "Mercredi 08h00-11h00 (G2) / Samedi 11h30-14h30 (G1)" },
+            { code: "ICT205", level: 2, semester: 1, defaultTitle: "Administration Systèmes et Réseaux", defaultRoom: "S003/S008", defaultSchedule: "Jeudi 08h00-11h00 (G2) / Vendredi 08h00-11h00 (G1)" },
+            { code: "ICT207", level: 2, semester: 1, defaultTitle: "Recherche Opérationnelle et Optimisation", defaultRoom: "S003/S008", defaultSchedule: "Lundi 11h30-14h30 (G1) / Mardi 08h00-11h00 (G2)" },
+            { code: "ICT217", level: 2, semester: 1, defaultTitle: "Spécialité GL : Méthodologies de Développement Logiciel", defaultRoom: "S003/S008", defaultSchedule: "Lundi 15h00-18h00 (G1) / Jeudi 15h00-18h00 (G2)" },
+            { code: "ICT213", level: 2, semester: 1, defaultTitle: "Spécialité Sécurité : Principes de Cryptographie et Sécurité", defaultRoom: "S003/S008", defaultSchedule: "Mercredi 11h30-14h30 (G1) / Vendredi 15h00-18h00 (G2)" },
+            { code: "ICT215", level: 2, semester: 1, defaultTitle: "Spécialité RAM : Réseaux et Architectures Mobiles", defaultRoom: "S003/S008", defaultSchedule: "Mercredi 15h00-18h00 (G1) / Jeudi 11h30-14h30 (G2)" },
+            { code: "FRA203", level: 2, semester: 1, defaultTitle: "Expression Française Professionnelle", defaultRoom: "S003/S008", defaultSchedule: "Mardi 15h00-18h00 (G1) / Samedi 15h00-18h00 (G2)" },
+            { code: "ENG203", level: 2, semester: 1, defaultTitle: "Technical English for Computer Science", defaultRoom: "S003/S008", defaultSchedule: "Mardi 15h00-18h00 (G2) / Samedi 08h00-11h00 (G1)" },
+
+            // NIVEAU 2 - S2
+            { code: "ICT202", level: 2, semester: 2, defaultTitle: "Conception et Programmation Web Avancée", defaultRoom: "S003/S008", defaultSchedule: "Lundi 13h-16h" },
+            { code: "ICT204", level: 2, semester: 2, defaultTitle: "Bases de Données Avancées et NoSQL", defaultRoom: "S003/S008", defaultSchedule: "Mardi 13h-16h" },
+            { code: "ICT206", level: 2, semester: 2, defaultTitle: "Technologies Mobiles et Applications", defaultRoom: "S003/S008", defaultSchedule: "Mercredi 08h-11h" },
+            { code: "ICT208", level: 2, semester: 2, defaultTitle: "Interconnexion Réseau et Routage IP", defaultRoom: "S003/S008", defaultSchedule: "Jeudi 08h-11h" },
+            { code: "ICT210", level: 2, semester: 2, defaultTitle: "Introduction à l'Intelligence Artificielle", defaultRoom: "S003/S008", defaultSchedule: "Vendredi 13h-16h" },
+            { code: "ICT218", level: 2, semester: 2, defaultTitle: "Spécialité GL : Architecture Logicielle & Design Patterns", defaultRoom: "S003/S008", defaultSchedule: "Samedi 08h-11h" },
+            { code: "ICT214", level: 2, semester: 2, defaultTitle: "Spécialité Sécurité : Sécurité des Réseaux et Pare-feu", defaultRoom: "S003/S008", defaultSchedule: "Samedi 08h-11h" },
+            { code: "ICT216", level: 2, semester: 2, defaultTitle: "Spécialité RAM : Protocoles Mobiles et Télécoms", defaultRoom: "S003/S008", defaultSchedule: "Samedi 08h-11h" },
+
+            // NIVEAU 3 - S1
+            { code: "ICT301", level: 3, semester: 1, defaultTitle: "Systèmes Distribués et Cloud Computing", defaultRoom: "S107", defaultSchedule: "Mardi 12h00-15h00 (G1) / Samedi 08h00-11h00 (G2)" },
+            { code: "ICT303", level: 3, semester: 1, defaultTitle: "Génie Logiciel Avancé et DevOps", defaultRoom: "S107", defaultSchedule: "Mercredi 15h00-18h00 (G1) / Mercredi 12h00-15h00 (G2)" },
+            { code: "ICT305", level: 3, semester: 1, defaultTitle: "Sécurité des Systèmes d'Information et Audit", defaultRoom: "S107", defaultSchedule: "Vendredi 08h00-11h00 (G1) / Lundi 15h00-18h00 (G2)" },
+            { code: "ICT307", level: 3, semester: 1, defaultTitle: "Data Mining et Fouille de Données", defaultRoom: "S107", defaultSchedule: "Lundi 12h00-15h00 (G1) / Jeudi 12h00-15h00 (G2)" },
+            { code: "ICT309", level: 3, semester: 1, defaultTitle: "Management des Projets Informatiques", defaultRoom: "S107", defaultSchedule: "Non programmé (absent de l'emploi du temps)" },
+            { code: "ICT300", level: 3, semester: 1, defaultTitle: "Méthodologie de Recherche et Projet de Soutenance", defaultRoom: "S107", defaultSchedule: "Jeudi 08h00-11h00 (G1) / Vendredi 15h00-18h00 (G2) / Samedi 12h00-15h00 (G3) / Samedi 15h00-18h00 (G4)" },
+            { code: "FRA303", level: 3, semester: 1, defaultTitle: "Communication d'Entreprise et Rapport de Synthèse", defaultRoom: "S107", defaultSchedule: "Lundi 08h00-11h00 (G1) / Jeudi 15h00-18h00 (G2)" },
+            { code: "ENG303", level: 3, semester: 1, defaultTitle: "Professional English Presentation & Writing", defaultRoom: "S107", defaultSchedule: "Lundi 08h00-11h00 (G1) / Jeudi 15h00-18h00 (G2)" },
+            { code: "ICT317", level: 3, semester: 1, defaultTitle: "Spécialité GL : Ingénierie des Composants et Microservices", defaultRoom: "S107", defaultSchedule: "Mardi 15h00-18h00 (G1) / Mercredi 08h00-11h00 (G2)" },
+            { code: "ICT313", level: 3, semester: 1, defaultTitle: "Spécialité Sécurité : Pentesting et Sécurité Offensive", defaultRoom: "S107", defaultSchedule: "Vendredi 12h00-15h00 (G1) / Mardi 08h00-11h00 (G2)" },
+            { code: "ICT315", level: 3, semester: 1, defaultTitle: "Spécialité RAM : Réseaux Sans Fil 5G/IoT", defaultRoom: "S107", defaultSchedule: "Vendredi 12h00-15h00 (G1) / Mardi 08h00-11h00 (G2)" },
+
+            // NIVEAU 3 - S2
+            { code: "ICT302", level: 3, semester: 2, defaultTitle: "Gouvernance des SI et Éthique Numérique", defaultRoom: "S107", defaultSchedule: "Lundi 10h-13h" },
+            { code: "ICT304", level: 3, semester: 2, defaultTitle: "Entrepreneuriat Numérique et Startups", defaultRoom: "S107", defaultSchedule: "Mardi 10h-13h" },
+            { code: "ICT306", level: 3, semester: 2, defaultTitle: "Veille Technologique et Droit des TIC", defaultRoom: "S107", defaultSchedule: "Mercredi 08h-11h" },
+            { code: "ICT308", level: 3, semester: 2, defaultTitle: "Stage Académique et Préparation Soutenance", defaultRoom: "S107", defaultSchedule: "Jeudi 09h-12h" },
+            { code: "ICT310", level: 3, semester: 2, defaultTitle: "Séminaires Thématiques Professionnels", defaultRoom: "S107", defaultSchedule: "Vendredi 09h-12h" },
+            { code: "ICT318", level: 3, semester: 2, defaultTitle: "Spécialité GL : Qualité Logicielle et Tests Automatisés", defaultRoom: "S107", defaultSchedule: "Samedi 08h-11h" },
+            { code: "ICT314", level: 3, semester: 2, defaultTitle: "Spécialité Sécurité : Gestion des Incidents et Forensics", defaultRoom: "S107", defaultSchedule: "Samedi 08h-11h" },
+            { code: "ICT316", level: 3, semester: 2, defaultTitle: "Spécialité RAM : Virtualisation Réseau et SDN", defaultRoom: "S107", defaultSchedule: "Samedi 08h-11h" }
+        ];
+
+        const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const todayStr = () => new Date().toLocaleDateString('sv-SE');
+        const academicYear = () => { const n = new Date(), y = n.getFullYear(); return n.getMonth() >= 8 ? `${y}/${y + 1}` : `${y - 1}/${y}`; };
+        const isNow = (schedule) => {
+            const days = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+            const n = new Date(), t = n.getHours() * 60 + n.getMinutes();
+            return String(schedule || '').split(' / ').some(part => {
+                const m = /(\S+)\s+(\d{1,2})h(\d{2})?-(\d{1,2})h(\d{2})?/.exec(part);
+                if (!m || days[n.getDay()] !== m[1].toLowerCase()) return false;
+                return t >= (+m[2] * 60 + (+m[3] || 0)) && t < (+m[4] * 60 + (+m[5] || 0));
+            });
+        };
+                window.setConn = function(online) {
+            const b = document.getElementById('connBadge'), d = document.getElementById('connDot'), t = document.getElementById('connText');
+            if (!b) return;
+            b.className = 'inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border ' + (online ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200');
+            d.className = 'w-2 h-2 rounded-full mr-1.5 ' + (online ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500');
+            t.textContent = online ? 'Connecté à Firebase' : 'Hors-ligne : modifications en attente';
+        };
+        window.addEventListener('online', () => { setConn(true); showToast("Connexion rétablie, envoi des modifications…", "success"); });
+        window.addEventListener('offline', () => { setConn(false); showToast("Vous êtes hors-ligne. Les modifications seront envoyées au retour d'internet.", "warning"); });
+        // ===== ASSISTANT IA =====
+        window.toggleTheme = function() {
+            const dark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+        };
+        document.documentElement.classList.add('intro');
+        setTimeout(() => document.documentElement.classList.remove('intro'), 1600);
+
+        // ===== NOTIFICATIONS ADMIN =====
+        const LV = {
+            urgent:    { label: 'Urgent',    box: 'border-l-4 border-l-rose-500 bg-rose-50',   txt: 'text-rose-700',  icon: '🚨' },
+            important: { label: 'Important', box: 'border-l-4 border-l-amber-500 bg-amber-50', txt: 'text-amber-700', icon: '⚠️' },
+            info:      { label: 'Info',      box: 'border-l-4 border-l-sky-500 bg-slate-50',   txt: 'text-sky-700',   icon: 'ℹ️' }
+        };
+        const levelOf = (n) => ({ absence: 'urgent', urgent: 'urgent', presence: 'important', important: 'important' }[n.type] || 'info');
+        const notifThrottle = {};
+        const notifSeenAt = () => { try { return +localStorage.getItem('adminNotifSeen') || 0; } catch (e) { return 0; } };
+        window.markNotifsSeen = function() { try { localStorage.setItem('adminNotifSeen', String(Date.now())); } catch (e) {} renderAdminNotifications(); };
+        function beep() {
+            try {
+                const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.05;
+                o.start(); o.stop(c.currentTime + 0.25);
+            } catch (e) {}
+        }
+        function isAdminDashboardVisible() {
+            const v = document.getElementById('view-admin');
+            return isAdminLoggedIn && v && !v.classList.contains('hidden');
+        }
+        function liveNotify(n) {
+            if (!isAdminDashboardVisible()) return;
+            if (levelOf(n) === 'urgent') beep();
+        }
+        function notifyFromChange(code, data) {
+            if (isAdminLoggedIn) return; // l'admin n'est pas notifié de ses propres actions
+            const ue = uesData[code] || {};
+            const who = ue.teacherName || 'Un enseignant';
+            const keys = Object.keys(data);
+            const once = (k, ms) => { const now = Date.now(); if (notifThrottle[k] && now - notifThrottle[k] < ms) return false; notifThrottle[k] = now; return true; };
+            if (keys.some(k => k.startsWith('studentGrades')) && once('g' + code, 120000))
+                sendNotificationToAdmin(`Notes modifiées : ${code}`, `${who} a saisi ou modifié des notes de CC.`, 'info');
+            if (keys.some(k => k === 'attendance' || k.startsWith('attendance.')) && once('a' + code, 120000))
+                sendNotificationToAdmin(`Fiche d'appel modifiée : ${code}`, `${who} a mis à jour la présence des étudiants.`, 'info');
+            if (keys.includes('evaluations'))
+                sendNotificationToAdmin(`Évaluations CC modifiées : ${code}`, `${who} a ajouté, modifié ou supprimé une évaluation.`, 'important');
+            if (Array.isArray(data.history) && data.history.length === 0)
+                sendNotificationToAdmin(`Historique effacé : ${code}`, `${who} a vidé l'historique des activités de cette UE.`, 'important');
+        }
+
+        // ===== SESSION : déconnexion après 15 min d'inactivité =====
+        let idleTimer = null;
+        function resetIdle() {
+            clearTimeout(idleTimer);
+            if (!currentUser) return;
+            idleTimer = setTimeout(async () => {
+                showToast("Session fermée par sécurité (15 min d'inactivité).", "warning");
+                if (isAdminLoggedIn) await exitAdminView(); else exitAndLockTeacherWorkspace();
+                if (auth.currentUser) await signOut(auth);
+            }, 15 * 60 * 1000);
+        }
+        ['click', 'keydown', 'touchstart', 'mousemove'].forEach(ev => window.addEventListener(ev, resetIdle, { passive: true }));
+
+        const ROOM_BY_LEVEL = { 1: 'R101', 2: 'S003/S008', 3: 'S107' }; // L1 : R101, L2 : S003/S008, L3 : S107, quel que soit le semestre
+
+        let currentUser = null, privUnsub = null, listUnsubs = [], assignments = {};
+        const PRIV = ['studentGrades', 'attendance', 'history', 'studentList'];
+        async function updUe(code, data) {
+            if (!navigator.onLine) showToast("Hors-ligne : modification enregistrée, envoi dès que la connexion revient.", "warning");
+            const pub = {}, priv = {};
+            for (const k in data) (PRIV.some(p => k === p || k.startsWith(p + '.')) ? priv : pub)[k] = data[k];
+            try {
+                const jobs = [];
+                if (Object.keys(pub).length) jobs.push(updateDoc(doc(db, "ues", code), pub));
+                if (Object.keys(priv).length) jobs.push(updateDoc(doc(db, "ues_private", code), priv));
+                await Promise.all(jobs);
+                notifyFromChange(code, data);
+            } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); }
+        }
+        const authMsg = (e) => ({
+            'auth/invalid-credential': "Email ou mot de passe incorrect.", 'auth/wrong-password': "Email ou mot de passe incorrect.",
+            'auth/user-not-found': "Email ou mot de passe incorrect.", 'auth/email-already-in-use': "Ce compte existe déjà : décochez « Créer mon compte ».",
+            'auth/weak-password': "Mot de passe trop faible (6 caractères minimum).", 'auth/invalid-email': "Adresse email invalide.",
+            'auth/too-many-requests': "Trop de tentatives, réessayez dans quelques minutes."
+        }[e.code] || "Connexion impossible : " + (e.code || e.message));
+
+        // ÉTAT GLOBAL
+        let currentNiveau = 1;
+        let currentSemestre = 1;
+        let uesData = {};
+        let activeUeId = null;
+        let isAdminLoggedIn = false;
+        let classLists = { 1: [], 2: [], 3: [] };
+        let pendingImportedStudents = [];
+        let pendingTargetLevel = 1;
+        let pendingImportMode = 'level';
+        let adminNotifications = [];
+
+        // Pré-remplissage local immédiat
+        PROGRAM_STRUCTURE.forEach(item => {
+            uesData[item.code] = {
+                code: item.code,
+                level: item.level,
+                semester: item.semester,
+                title: "",
+                teacherName: "",
+                teacherUid: "",
+                hoursTaught: 0,
+                totalRequiredHours: 45,
+                room: item.defaultRoom,
+                schedule: item.defaultSchedule,
+                isAbsentToday: false,
+                evaluations: [],
+                studentGrades: {},
+                attendance: {},
+                history: []
+            };
+        });
+
+        // ==========================================
+        // DÉCLARATION DE TOUTES LES FONCTIONS GLOBALES
+        // ==========================================
+
+        window.navigateTo = function(viewName) {
+            if (viewName === 'portal') viewName = 'admin';
+            if (!isAdminLoggedIn) viewName = 'locked'; // l'espace admin n'existe qu'après connexion par mot de passe
+            ['view-locked', 'view-teacher', 'view-admin'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+            if (viewName === 'admin') renderAdminDashboard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateGlobalAbsenceAlert();
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.handleLogoClick = function() {
+            if (activeUeId) exitAndLockTeacherWorkspace();
+            else navigateTo('portal');
+        };
+
+        window.setTeacherTab = function(tab) {
+            ['cc', 'attendance', 'history'].forEach(t => {
+                const content = document.getElementById(`teacherTabContent-${t}`);
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (content && btn) {
+                    if (t === tab) {
+                        content.classList.remove('hidden');
+                        btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition bg-white text-sky-900 shadow-sm";
+                    } else {
+                        content.classList.add('hidden');
+                        btn.className = "px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 transition text-slate-600 hover:text-slate-900";
+                    }
+                }
+            });
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.togglePasswordVisibility = function(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-700 text-white',
+                error: 'bg-rose-700 text-white',
+                warning: 'bg-amber-600 text-white',
+                info: 'bg-slate-900 text-sky-300'
+            };
+
+            toast.className = `p-3 rounded-xl shadow-xl text-xs font-semibold flex items-center space-x-2 animate-in slide-in-from-bottom duration-300 ${colors[type] || colors.info}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity');
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        };
+
+        // Authentification Enseignant
+        window.requestUeAccess = function(ueCode) {
+            const ue = uesData[ueCode];
+            if (!ue) return;
+            if (!isAdminLoggedIn) { openAdminModal(); return; }
+            if (isAdminLoggedIn || (currentUser && ue.teacherUid && ue.teacherUid === currentUser.uid)) {
+                openTeacherWorkspace(ueCode);
+                return;
+            }
+            if (currentUser && ue.teacherUid && ue.teacherUid !== currentUser.uid) {
+                showToast(`Cette matière est rattachée à un autre enseignant. Vous n'avez accès qu'à votre propre matière.`, "warning");
+                return;
+            }
+            document.getElementById('authModalUeTitle').textContent = `Accès Enseignant : ${ue.code}`;
+            document.getElementById('teacherAuthPasswordInput').value = '';
+            document.getElementById('authCreateAccount').checked = false;
+            document.getElementById('authErrorMessage').classList.add('hidden');
+            const firstTimeBox = document.getElementById('authFirstTimePrompt');
+            if (!ue.teacherUid) {
+                firstTimeBox.classList.remove('hidden');
+                document.getElementById('firstTimeTeacherName').value = '';
+                document.getElementById('firstTimeUeTitle').value = ue.title || '';
+            } else {
+                firstTimeBox.classList.add('hidden');
+            }
+            window.pendingUeCodeToAuth = ueCode;
+            document.getElementById('modalTeacherAuth').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => document.getElementById('teacherAuthEmailInput').focus(), 150);
+        };
+
+        window.sendPasswordReset = async function() {
+            if (!currentUser || !currentUser.email) return;
+            try {
+                await sendPasswordResetEmail(auth, currentUser.email);
+                showToast(`Email de réinitialisation envoyé à ${currentUser.email}`, "success");
+            } catch (e) { showToast("Échec de l'envoi de l'email.", "error"); }
+        };
+
+        window.exitAndLockTeacherWorkspace = function() {
+            if (privUnsub) { privUnsub(); privUnsub = null; }
+            if (activeUeId && uesData[activeUeId]) Object.assign(uesData[activeUeId], { studentGrades: {}, attendance: {}, history: [] });
+            activeUeId = null;
+            if (!isAdminLoggedIn) signOut(auth);
+            navigateTo(isAdminLoggedIn ? 'admin' : 'portal');
+            showToast("🔒 Espace enseignant verrouillé.", "info");
+        };
+
+        // Authentification Admin
+        window.handleAdminButtonClick = function() {
+            if (isAdminLoggedIn) navigateTo('admin');
+            else openAdminModal();
+        };
+
+        window.openAdminModal = function() {
+            document.getElementById('adminAuthPasswordInput').value = '';
+            document.getElementById('adminAuthErrorMessage').classList.add('hidden');
+            document.getElementById('modalAdminAuth').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+            setTimeout(() => document.getElementById('adminAuthPasswordInput').focus(), 150);
+        };
+
+        window.closeAdminAuthModal = function() {
+            document.getElementById('modalAdminAuth').classList.add('hidden');
+        };
+
+        window.applyAdminUI = function(on) {
+            document.getElementById('btnAdminNavText').textContent = on ? "Espace Admin (Actif)" : "Accès Admin";
+            const b = document.getElementById('adminModeIndicator');
+            b.classList.toggle('hidden', !on);
+            b.classList.toggle('flex', on);
+            if (!on) {
+                const alertBox = document.getElementById('globalAbsenceAlert');
+                if (alertBox) alertBox.classList.add('hidden');
+            }
+        };
+
+        window.submitAdminAuth = async function() {
+            const email = document.getElementById('adminAuthEmailInput').value.trim();
+            const pass = document.getElementById('adminAuthPasswordInput').value;
+            const errorBox = document.getElementById('adminAuthErrorMessage');
+            const errorText = document.getElementById('adminAuthErrorText');
+            const fail = (m) => { errorBox.classList.remove('hidden'); errorText.textContent = m; };
+            if (!email || !pass) return fail("Email et mot de passe requis.");
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, pass);
+                const isAdm = (await getDoc(doc(db, "admins", cred.user.uid))).exists();
+                if (!isAdm) { await signOut(auth); return fail("Ce compte n'a pas les droits administrateur."); }
+            } catch (e) { return fail(authMsg(e)); }
+            isAdminLoggedIn = true;
+            attachPrivateListeners(true, true);
+            initializeProgramWithBatch();
+            closeAdminAuthModal();
+            applyAdminUI(true);
+            navigateTo('admin');
+            showToast("Authentification Administrateur validée.", "success");
+        };
+
+        window.exitAdminView = async function() {
+            isAdminLoggedIn = false;
+            activeUeId = null;
+            applyAdminUI(false);
+            await signOut(auth);
+            navigateTo('portal');
+            showToast("🔒 Session Administrateur fermée.", "info");
+        };
+
+        window.openAdminNotificationsModal = function() { _openNotifs(); markNotifsSeen(); };
+
+        window.openTeacherWorkspace = async function(ueCode) {
+            if (privUnsub) { privUnsub(); privUnsub = null; }
+            const ref = doc(db, "ues_private", ueCode);
+            try {
+                const snap = await getDoc(ref);
+                if (!snap.exists()) await setDoc(ref, { studentGrades: {}, attendance: {}, history: [], studentList: [] });
+            } catch (e) { console.error(e); showToast("Accès aux données refusé.", "error"); return; }
+            activeUeId = ueCode;
+            privUnsub = onSnapshot(ref, (snap) => {
+                if (snap.exists()) Object.assign(uesData[ueCode], snap.data());
+                if (activeUeId === ueCode) renderKeepingFocus();
+            }, (err) => console.error(err));
+            renderActiveTeacherWorkspace();
+            navigateTo('teacher');
+            setTeacherTab('cc');
+        };
+
+        window.renderKeepingFocus = function() {
+            const a = document.activeElement;
+            const key = a && a.dataset ? a.dataset.key : null;
+            renderActiveTeacherWorkspace();
+            if (key) { const el = document.querySelector(`[data-key="${key}"]`); if (el) el.focus(); }
+        };
+
+        window.renderActiveTeacherWorkspace = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            document.getElementById('activeUeCode').textContent = ue.code;
+            document.getElementById('activeUeTitle').textContent = ue.title || "Intitulé du cours non défini";
+            document.getElementById('activeUeTeacherName').textContent = ue.teacherName || "Non encore défini";
+            document.getElementById('activeUeLevelSem').textContent = `Niveau ${ue.level} - Semestre ${ue.semester}`;
+
+            const hours = ue.hoursTaught || 0;
+            const required = ue.totalRequiredHours || 45;
+            const percent = Math.min(100, Math.round((hours / required) * 100));
+            document.getElementById('activeHoursTaught').textContent = `${hours}h`;
+            document.getElementById('activeHoursProgress').style.width = `${percent}%`;
+            document.getElementById('activeHoursPercent').textContent = `${percent}% d'avancement`;
+
+            document.getElementById('activeScheduleRoom').textContent = ue.room || "Salle UY1";
+            document.getElementById('activeScheduleDay').textContent = ue.schedule || "Horaire non planifié";
+
+            const btnAbsence = document.getElementById('btnSignalAbsence');
+            const btnAbsenceText = document.getElementById('btnSignalAbsenceText');
+            if (ue.isAbsentToday) {
+                btnAbsence.className = "w-full py-1.5 px-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition";
+                btnAbsenceText.textContent = "Je suis de retour (Annuler absence)";
+            } else {
+                btnAbsence.className = "w-full py-1.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition";
+                btnAbsenceText.textContent = "Signaler mon indisponibilité";
+            }
+
+            renderCcTable();
+            renderAttendanceTable();
+            renderHistoryList();
+        };
+
+        window.confirmTeacherPresenceSession = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            if (ue.lastSessionDate === todayStr()) { showToast("Une séance a déjà été validée aujourd'hui.", "warning"); return; }
+
+            const total = ue.totalRequiredHours || 45;
+            if ((ue.hoursTaught || 0) >= total) { showToast(`Le volume horaire de ${total}h est déjà atteint.`, "info"); return; }
+            const newHours = Math.min((ue.hoursTaught || 0) + 3, total);
+            await updUe(activeUeId, {
+                hoursTaught: newHours,
+                lastSessionDate: todayStr(),
+                history: [
+                    { action: "Validation Séance (+3h)", date: new Date().toISOString(), detail: `Pointage effectué. Total: ${newHours}h` },
+                    ...(ue.history || []).slice(0, 50)
+                ]
+            });
+
+            sendNotificationToAdmin(
+                `Séance Validée : ${ue.code}`,
+                `L'enseignant (${ue.teacherName}) a validé 3h de cours. Progression : ${newHours}h / ${total}h.`,
+                "presence"
+            );
+
+            showToast("Séance de 3 heures validée !", "success");
+        };
+
+        window.toggleTeacherAbsence = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const newState = !ue.isAbsentToday;
+            await updUe(activeUeId, {
+                isAbsentToday: newState,
+                absenceDate: newState ? todayStr() : "",
+                absenceReason: newState ? "Indisponibilité signalée par l'enseignant" : "",
+                history: [
+                    { action: newState ? "Déclaration d'absence" : "Reprise des cours", date: new Date().toISOString(), detail: newState ? "Enseignant indisponible aujourd'hui" : "Absence levée" },
+                    ...(ue.history || []).slice(0, 50)
+                ]
+            });
+
+            if (newState) {
+                sendNotificationToAdmin(
+                    `Alerte Absence : ${ue.code}`,
+                    `L'enseignant (${ue.teacherName}) a signalé qu'il ne sera pas disponible aujourd'hui.`,
+                    "absence"
+                );
+                showToast("Votre indisponibilité a été signalée sur la plateforme.", "warning");
+            } else {
+                sendNotificationToAdmin(`Reprise des cours : ${ue.code}`, `${ue.teacherName || 'L\'enseignant'} a annulé son avis d'absence.`, "important");
+                showToast("Avis d'absence annulé.", "info");
+            }
+        };
+
+        // Table des CC
+        window.renderCcTable = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const students = studentsForUe(ue);
+            const evals = ue.evaluations || [];
+            const grades = ue.studentGrades || {};
+
+            const headerRow = document.getElementById('ccTableHeaderRow');
+            let colsHtml = `
+                <th class="p-3 w-12 text-center">N°</th>
+                <th class="p-3 w-28">Matricule</th>
+                <th class="p-3">Nom & Prénoms de l'Étudiant</th>
+            `;
+
+            evals.forEach((ev, idx) => {
+                colsHtml += `
+                    <th class="p-3 w-28 text-center bg-slate-50 font-bold border-l border-slate-200">
+                        <div class="flex items-center justify-center space-x-1">
+                            <span>${esc(ev.title)} (/${ev.max})</span>
+                            <button onclick="deleteCcEvaluation(${idx})" class="text-rose-500 hover:text-rose-700 ml-1" title="Supprimer ce CC">
+                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </th>
+                `;
+            });
+
+            colsHtml += `<th class="p-3 w-24 text-center bg-sky-50 text-sky-950 font-black border-l border-sky-100">Moyenne CC / 20</th>`;
+            headerRow.innerHTML = colsHtml;
+
+            const tbody = document.getElementById('ccTableBody');
+            if (students.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${4 + evals.length}" class="p-6 text-center text-slate-400 italic">
+                            Aucune liste d'étudiants. Importez un fichier (Excel, CSV, PDF, Word) dans l'onglet Appel, ou demandez à l'administrateur d'importer la liste du niveau.
+                        </td>
+                    </tr>
+                `;
+                if (window.lucide) lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = students.map((std, idx) => {
+                const stdGrades = grades[std.matricule] || {};
+                let sumWeighted = 0;
+                let countEvaluated = 0;
+
+                let rowColsHtml = `
+                    <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+                    <td class="p-3 font-mono font-bold text-slate-800">${esc(std.matricule)}</td>
+                    <td class="p-3 font-semibold text-slate-900">${esc(std.name)}</td>
+                `;
+
+                evals.forEach((ev) => {
+                    const gradeVal = stdGrades[ev.id] !== undefined ? stdGrades[ev.id] : "";
+                    if (gradeVal !== "" && !isNaN(gradeVal)) {
+                        sumWeighted += (parseFloat(gradeVal) / ev.max) * 20;
+                        countEvaluated++;
+                    }
+
+                    rowColsHtml += `
+                        <td class="p-2 text-center border-l border-slate-100">
+                            <input data-key="${std.matricule}|${ev.id}" type="number" step="0.25" min="0" max="${ev.max}" value="${gradeVal}" 
+                                onchange="saveStudentGrade('${esc(std.matricule)}', '${ev.id}', this.value)" 
+                                placeholder="- / ${ev.max}" 
+                                class="w-20 text-center p-1.5 border border-slate-200 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-sky-500">
+                        </td>
+                    `;
+                });
+
+                const finalGrade = countEvaluated > 0 ? (sumWeighted / countEvaluated).toFixed(2) : "-";
+
+                rowColsHtml += `
+                    <td class="p-3 text-center font-black border-l border-sky-100 bg-sky-50/50 ${finalGrade !== '-' && parseFloat(finalGrade) >= 10 ? 'text-emerald-700' : 'text-slate-800'}">
+                        ${finalGrade !== '-' ? `${finalGrade} / 20` : '-'}
+                    </td>
+                `;
+
+                return `<tr class="hover:bg-slate-50 transition">${rowColsHtml}</tr>`;
+            }).join('');
+
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.saveStudentGrade = async function(matricule, evalId, value) {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const ev = (ue.evaluations || []).find(e => e.id === evalId);
+            const v = value === "" ? null : parseFloat(value);
+            if (v !== null && (isNaN(v) || v < 0 || (ev && v > ev.max))) {
+                showToast(`Note invalide (entre 0 et ${ev ? ev.max : '?'})`, "error");
+                renderCcTable();
+                return;
+            }
+            try {
+                await updUe(activeUeId, {
+                    [`studentGrades.${matricule}.${evalId}`]: v === null ? deleteField() : v,
+                    history: [
+                        { action: "Saisie note CC", date: new Date().toISOString(), detail: `Matricule ${matricule} : ${v === null ? 'note effacée' : 'note enregistrée'}` },
+                        ...(ue.history || []).slice(0, 50)
+                    ]
+                });
+            } catch (e) {
+                console.error(e);
+                showToast("Échec de l'enregistrement de la note.", "error");
+            }
+        };
+
+        window.openAddCcModal = function() {
+            document.getElementById('newCcTitleInput').value = `CC${(uesData[activeUeId].evaluations || []).length + 1}`;
+            document.getElementById('newCcMaxInput').value = "20";
+            document.getElementById('newCcDateInput').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modalAddCc').classList.remove('hidden');
+        };
+
+        window.closeAddCcModal = function() {
+            document.getElementById('modalAddCc').classList.add('hidden');
+        };
+
+        window.confirmCreateNewCc = async function() {
+            const title = document.getElementById('newCcTitleInput').value.trim();
+            const maxVal = parseFloat(document.getElementById('newCcMaxInput').value) || 20;
+            const dateVal = document.getElementById('newCcDateInput').value;
+
+            if (!title) {
+                alert("Veuillez indiquer un intitulé pour ce CC.");
+                return;
+            }
+
+            const ue = uesData[activeUeId];
+            const evals = ue.evaluations || [];
+            evals.push({ id: `cc_${Date.now()}`, title: title, max: maxVal, date: dateVal });
+
+            await updUe(activeUeId, {
+                evaluations: evals,
+                history: [
+                    { action: "Ajout CC", date: new Date().toISOString(), detail: `Création de ${title} sur ${maxVal}` },
+                    ...(ue.history || []).slice(0, 50)
+                ]
+            });
+
+            closeAddCcModal();
+            showToast(`Évaluation ${title} créée.`, "success");
+        };
+
+        window.deleteCcEvaluation = async function(index) {
+            if (!confirm("Supprimer ce CC et toutes les notes associées ?")) return;
+            const ue = uesData[activeUeId];
+            const evals = [...(ue.evaluations || [])];
+            const removed = evals.splice(index, 1)[0];
+
+            await updUe(activeUeId, {
+                evaluations: evals,
+                history: [
+                    { action: "Suppression CC", date: new Date().toISOString(), detail: `Suppression de ${removed.title}` },
+                    ...(ue.history || []).slice(0, 50)
+                ]
+            });
+
+            showToast("Évaluation supprimée.", "info");
+        };
+
+        // Table des Présences (Appel)
+        window.renderAttendanceTable = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const students = studentsForUe(ue);
+            const picker = document.getElementById('attendanceDatePicker');
+            if (!picker.value) picker.value = new Date().toISOString().split('T')[0];
+            const selectedDate = picker.value;
+
+            const dateRecords = (ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {};
+
+            let presentCount = 0;
+            let absentCount = 0;
+
+            const hint = document.getElementById('classListSourceHint');
+            if (hint) {
+                const fromUe = Array.isArray(ue.studentList) && ue.studentList.length;
+                hint.textContent = fromUe
+                    ? `${students.length} étudiant(s) enregistrés pour ce cours. Vous pouvez réimporter un fichier pour remplacer la liste.`
+                    : `Aucune liste propre à ce cours. ${students.length ? students.length + ' étudiant(s) issus de la liste du niveau ' + ue.level + '.' : 'Importez un fichier Excel/CSV/PDF/Word pour faire l\'appel.'}`;
+            }
+
+            const tbody = document.getElementById('attendanceTableBody');
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant. Importez la liste ci-dessus pour faire l'appel.</td></tr>`;
+                document.getElementById('attendanceTotalCount').textContent = '0';
+                document.getElementById('attendancePresentCount').textContent = '0';
+                document.getElementById('attendanceAbsentCount').textContent = '0';
+                document.getElementById('attendanceRate').textContent = '0%';
+                return;
+            }
+
+            tbody.innerHTML = students.map((std, idx) => {
+                const status = dateRecords[std.matricule];
+                if (status === true) presentCount++;
+                if (status === false) absentCount++;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+                        <td class="p-3 font-mono font-bold text-slate-800">${esc(std.matricule)}</td>
+                        <td class="p-3 font-semibold text-slate-900">${esc(std.name)}</td>
+                        <td class="p-3 text-center">
+                            <div class="inline-flex rounded-lg shadow-sm border border-slate-200 p-0.5 bg-slate-100">
+                                <button onclick="setStudentAttendance('${esc(std.matricule)}', true)" class="px-2.5 py-1 text-xs font-bold rounded-md transition ${status === true ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:text-slate-900'}">
+                                    PRÉSENT
+                                </button>
+                                <button onclick="setStudentAttendance('${esc(std.matricule)}', false)" class="px-2.5 py-1 text-xs font-bold rounded-md transition ${status === false ? 'bg-rose-600 text-white shadow' : 'text-slate-600 hover:text-slate-900'}">
+                                    ABSENT
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('attendanceTotalCount').textContent = students.length;
+            document.getElementById('attendancePresentCount').textContent = presentCount;
+            document.getElementById('attendanceAbsentCount').textContent = absentCount;
+            const rate = students.length > 0 ? Math.round((presentCount / students.length) * 100) : 0;
+            document.getElementById('attendanceRate').textContent = `${rate}%`;
+
+            if (window.lucide) lucide.createIcons();
+        };
+
+        window.loadAttendanceForDate = function() { renderAttendanceTable(); };
+
+        window.setStudentAttendance = async function(matricule, isPresent) {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const selectedDate = document.getElementById('attendanceDatePicker').value;
+            const attendance = ue.attendance || {};
+            if (!attendance[selectedDate]) attendance[selectedDate] = {};
+
+            attendance[selectedDate][matricule] = isPresent;
+            await updUe(activeUeId, { attendance: attendance });
+        };
+
+        window.markAllPresent = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const selectedDate = document.getElementById('attendanceDatePicker').value;
+            const students = studentsForUe(ue);
+            const attendance = ue.attendance || {};
+            attendance[selectedDate] = {};
+
+            students.forEach(std => { attendance[selectedDate][std.matricule] = true; });
+            await updUe(activeUeId, { attendance: attendance });
+            showToast("Tous les étudiants ont été marqués présents.", "success");
+        };
+
+        window.renderHistoryList = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const list = document.getElementById('historyList');
+            const history = ue.history || [];
+
+            if (history.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune action enregistrée pour le moment.</p>`;
+                return;
+            }
+
+            list.innerHTML = history.map(item => `
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div>
+                        <strong class="text-slate-900">${esc(item.action)}</strong>
+                        <p class="text-slate-500 mt-0.5">${item.detail || ''}</p>
+                    </div>
+                    <span class="text-[11px] text-slate-400 font-mono">${new Date(item.date).toLocaleString('fr-FR')}</span>
+                </div>
+            `).join('');
+        };
+
+        window.clearCourseHistory = async function() {
+            if (!confirm("Réinitialiser l'historique de cette matière ?")) return;
+            await updUe(activeUeId, {
+                history: [{ action: "Historique réinitialisé", date: new Date().toISOString(), detail: "Purger par l'enseignant" }]
+            });
+            showToast("Historique réinitialisé", "info");
+        };
+
+        // Tableau de bord Admin
+        window.renderAdminDashboard = function() {
+            const allUes = Object.values(uesData);
+
+            document.getElementById('adminStatTotalUes').textContent = allUes.length;
+            const totalHours = allUes.reduce((sum, u) => sum + (u.hoursTaught || 0), 0);
+            const totalRequired = allUes.length * 45;
+            const avgProgress = totalRequired > 0 ? Math.round((totalHours / totalRequired) * 100) : 0;
+            document.getElementById('adminStatAvgProgress').textContent = `${avgProgress}%`;
+
+            const totalCcs = allUes.reduce((sum, u) => sum + ((u.evaluations || []).length), 0);
+            document.getElementById('adminStatTotalCcs').textContent = totalCcs;
+
+            const absentCount = allUes.filter(u => u.isAbsentToday).length;
+            document.getElementById('adminStatAbsences').textContent = absentCount;
+
+            renderRoomsOccupancy();
+            renderAdminUeTable();
+            renderAdminNotifications();
+            renderClassListStats();
+        };
+
+        function renderRoomsOccupancy() {
+            const grid = document.getElementById('roomsOccupancyGrid');
+            if (!grid) return;
+
+            const officialRooms = [
+                { name: "Salle R101", capacity: "ICTL1" },
+                { name: "Salle S003", capacity: "ICTL2 (avec S008)" },
+                { name: "Salle S008", capacity: "ICTL2 (avec S003)" },
+                { name: "Salle S107", capacity: "ICTL3" }
+            ];
+
+            grid.innerHTML = officialRooms.map(room => {
+                const roomKey = room.name.replace(/^(Amphi|Salle)\s+/, '');
+                const occupiedBy = Object.values(uesData).find(u => u.room && u.room.includes(roomKey) && isNow(u.schedule));
+                const isOccupied = !!occupiedBy;
+
+                return `
+                    <div class="p-4 rounded-xl border ${isOccupied ? 'bg-amber-50/60 border-amber-300' : 'bg-emerald-50/50 border-emerald-200'} flex flex-col justify-between space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800 text-xs">${room.name}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${isOccupied ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">
+                                ${isOccupied ? 'Occupée' : 'Disponible'}
+                            </span>
+                        </div>
+                        <div>
+                            <p class="text-xs ${isOccupied ? 'text-amber-900 font-bold' : 'text-slate-500'}">
+                                ${isOccupied ? `Cours : ${occupiedBy.code} (${esc(occupiedBy.teacherName) || 'Prof'})` : 'Aucun cours en cours'}
+                            </p>
+                            <span class="text-[10px] text-slate-400">${room.capacity}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.renderAdminUeTable = function() {
+            const tbody = document.getElementById('adminUeTableBody');
+            if (!tbody) return;
+
+            const allUes = Object.values(uesData);
+            allUes.sort((a, b) => a.level - b.level || a.semester - b.semester || a.code.localeCompare(b.code));
+
+            tbody.innerHTML = allUes.map(ue => {
+                const percent = Math.min(100, Math.round(((ue.hoursTaught || 0) / 45) * 100));
+                const ccCount = (ue.evaluations || []).length;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3 font-mono font-black text-sky-900">${esc(ue.code)}</td>
+                        <td class="p-3 text-xs text-slate-500 font-medium">Niv ${ue.level} - S${ue.semester}</td>
+                        <td class="p-3 font-semibold text-slate-800 text-xs max-w-xs truncate">${esc(ue.title) || '<span class="italic text-slate-400">Non renseigné</span>'}</td>
+                        <td class="p-3 text-xs font-bold text-slate-900">${esc(ue.teacherName) || '<span class="text-amber-600">Non attribué</span>'}<div class="text-[10px] font-normal text-slate-400">${esc(assignments[ue.code] || 'aucun email attribué')}</div></td>
+                        <td class="p-3 text-center text-xs font-bold text-slate-700">${ue.hoursTaught || 0}h (${percent}%)</td>
+                        <td class="p-3 text-center text-xs font-bold text-slate-700">${ccCount}</td>
+                        <td class="p-3 text-center">
+                            ${ue.isAbsentToday ? 
+                                `<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded text-[10px] font-bold">Absent</span>` : 
+                                `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">Actif</span>`}
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="assignTeacherEmail('${esc(ue.code)}')" class="px-2.5 py-1 mr-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition">Attribuer</button>
+                            <button onclick="releaseUe('${esc(ue.code)}')" class="px-2.5 py-1 mr-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold transition">Libérer</button>
+                            <button onclick="requestUeAccess('${esc(ue.code)}')" class="px-3 py-1 bg-sky-900 hover:bg-sky-800 text-white rounded-lg text-xs font-bold transition">
+                                Inspecter
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        window.assignTeacherEmail = async function(code) {
+            const email = prompt(`Email de l'enseignant autorisé pour ${code} (laisser vide pour retirer) :`, assignments[code] || '');
+            if (email === null) return;
+            const e = email.trim().toLowerCase();
+            if (e && !/^\S+@\S+\.\S+$/.test(e)) { showToast("Adresse email invalide.", "error"); return; }
+            try {
+                if (e) await setDoc(doc(db, "ue_assignments", code), { email: e });
+                else await deleteDoc(doc(db, "ue_assignments", code));
+                showToast(e ? `${code} attribuée à ${e}` : `Attribution retirée pour ${code}`, "success");
+            } catch (err) { console.error(err); showToast("Action refusée.", "error"); }
+        };
+
+        window.releaseUe = async function(code) {
+            if (!confirm(`Libérer ${code} ? L'enseignant actuel perdra l'accès (les notes sont conservées).`)) return;
+            await updUe(code, { teacherUid: "", teacherName: "" });
+            showToast(`${code} libérée.`, "info");
+        };
+
+        window.migrateOldData = async function() {
+            if (!isAdminLoggedIn) return;
+            if (!confirm("Déplacer les anciennes notes, appels et historiques vers la zone privée, et supprimer les anciens mots de passe de la zone publique ?")) return;
+            try {
+                const snap = await getDocs(collection(db, "ues"));
+                let moved = 0, cleaned = 0;
+                for (const d of snap.docs) {
+                    const x = d.data();
+                    if (!['password', 'studentGrades', 'attendance', 'history'].some(k => k in x)) continue;
+                    const priv = {};
+                    if (x.studentGrades && Object.keys(x.studentGrades).length) priv.studentGrades = x.studentGrades;
+                    if (x.attendance && Object.keys(x.attendance).length) priv.attendance = x.attendance;
+                    if (Array.isArray(x.history) && x.history.length) priv.history = x.history;
+                    if (Object.keys(priv).length) {
+                        const pref = doc(db, "ues_private", d.id);
+                        const cur = (await getDoc(pref)).data() || {};
+                        for (const k of Object.keys(priv)) {
+                            const v = cur[k];
+                            if (v && (Array.isArray(v) ? v.length : Object.keys(v).length)) delete priv[k]; // ne jamais écraser du récent
+                        }
+                        if (Object.keys(priv).length) { await setDoc(pref, priv, { merge: true }); moved++; }
+                    }
+                    await updateDoc(d.ref, { password: deleteField(), studentGrades: deleteField(), attendance: deleteField(), history: deleteField() });
+                    cleaned++;
+                }
+                showToast(`Migration terminée : ${cleaned} UE nettoyée(s), ${moved} avec données déplacées.`, "success");
+            } catch (e) { console.error(e); showToast("Échec de la migration (voir la console).", "error"); }
+        };
+
+        window.syncTimetable = async function() {
+            if (!isAdminLoggedIn) return;
+            if (!confirm("Mettre à jour salles et horaires de toutes les UE selon l'emploi du temps officiel S1 2026-2027 ?")) return;
+            try {
+                await initializeProgramWithBatch();
+                const batch = writeBatch(db);
+                PROGRAM_STRUCTURE.forEach(i => batch.update(doc(db, "ues", i.code), { room: ROOM_BY_LEVEL[i.level], schedule: i.defaultSchedule }));
+                await batch.commit();
+                showToast("Emploi du temps synchronisé.", "success");
+            } catch (e) { console.error(e); showToast("Échec de la synchronisation.", "error"); }
+        };
+
+        window.filterAdminUeTable = function() {
+            const query = document.getElementById('adminSearchUe').value.toLowerCase();
+            const rows = document.querySelectorAll('#adminUeTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        };
+
+        function renderAdminNotifications() {
+            const seen = notifSeenAt();
+            const unread = adminNotifications.filter(n => (n.timestamp ? n.timestamp.seconds * 1000 : Date.now()) > seen).length;
+            const badge = document.getElementById('adminNotifBadge');
+            if (badge) {
+                badge.classList.toggle('hidden', unread === 0);
+                badge.classList.toggle('flex', unread > 0);
+                badge.textContent = unread > 99 ? '99+' : unread;
+            }
+
+            const when = (n) => n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString('fr-FR') : "À l'instant";
+            const item = (n, full) => {
+                const L = LV[levelOf(n)];
+                return `<div class="p-3 ${L.box} rounded-xl flex items-start justify-between text-xs">
+                    <div class="space-y-0.5 min-w-0">
+                        <div class="flex flex-wrap items-center gap-x-2">
+                            <span class="font-bold ${L.txt}">${L.icon} ${L.label}</span>
+                            <span class="font-bold text-slate-900">${esc(n.title)}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${when(n)}</span>
+                        </div>
+                        <p class="text-slate-600">${esc(n.message)}${n.by ? ` <span class="text-slate-400">— ${esc(n.by)}</span>` : ''}</p>
+                    </div>
+                    ${full ? `<button onclick="deleteSingleNotification('${n.id}')" class="text-rose-500 hover:text-rose-700 ml-3 p-1" title="Supprimer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                </div>`;
+            };
+            const empty = `<p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p>`;
+            const list = document.getElementById('adminNotificationsList');
+            if (list) list.innerHTML = adminNotifications.length ? adminNotifications.map(n => item(n, true)).join('') : empty;
+            const feed = document.getElementById('adminLiveFeed');
+            if (feed) feed.innerHTML = adminNotifications.length ? adminNotifications.slice(0, 6).map(n => item(n, false)).join('') : empty;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        const _openNotifs = window.openAdminNotificationsModal;
+        window.openAdminNotificationsModal = function() { _openNotifs(); markNotifsSeen(); };
+
+        function studentsForUe(ue) {
+            if (!ue) return [];
+            if (Array.isArray(ue.studentList) && ue.studentList.length) return ue.studentList;
+            return classLists[ue.level] || [];
+        }
+
+        function normalizeStudent(mat, name) {
+            const matricule = String(mat || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            const nom = String(name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+            if (matricule.length < 3 || nom.length < 2) return null;
+            if (/^(MATRICULE|NOM|N°|NO|NAME|#)$/.test(matricule) || /^(NOM|PRENOM|PRÉNOM|NAME|ETUDIANT|ÉTUDIANT)$/.test(nom)) return null;
+            return { matricule, name: nom };
+        }
+
+        function studentsFromRows(rows) {
+            if (!rows || !rows.length) return [];
+            const header = (rows[0] || []).map(c => String(c || '').toLowerCase());
+            let matIdx = header.findIndex(c => /matricule|matri|id.?etu|code.?etu/.test(c));
+            let nameIdx = header.findIndex(c => /nom|name|pr[eé]nom|étudiant|etudiant/.test(c));
+            let start = 0;
+            if (matIdx >= 0 || nameIdx >= 0) start = 1;
+            if (matIdx < 0) matIdx = 0;
+            if (nameIdx < 0) nameIdx = matIdx === 0 ? 1 : 0;
+            const seen = new Set();
+            const students = [];
+            for (let i = start; i < rows.length; i++) {
+                const r = rows[i] || [];
+                const nameParts = nameIdx > matIdx
+                    ? r.slice(nameIdx).filter(Boolean)
+                    : r.filter((_, idx) => idx !== matIdx);
+                const s = normalizeStudent(r[matIdx], nameParts.join(' '));
+                if (s && !seen.has(s.matricule)) { seen.add(s.matricule); students.push(s); }
+            }
+            return students;
+        }
+
+        function renderClassListStats() {
+            const el = document.getElementById('classListStats');
+            if (!el) return;
+            el.textContent = `Listes enregistrées — Niveau 1 : ${(classLists[1] || []).length} · Niveau 2 : ${(classLists[2] || []).length} · Niveau 3 : ${(classLists[3] || []).length} étudiant(s).`;
+        }
+
+        // Import listes
+        window.handleClassListFileUpload = function(event, mode) {
+            const file = event.target.files[0];
+            if (!file) return;
+            pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
+            const fileName = file.name.toLowerCase();
+
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+                parseExcelFile(file);
+            } else if (fileName.endsWith('.pdf')) {
+                parsePdfFile(file);
+            } else if (fileName.endsWith('.docx')) {
+                parseWordFile(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => processRawTextToStudents(e.target.result);
+                reader.readAsText(file);
+            }
+            event.target.value = '';
+        };
+
+        function parseExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                displayImportPreview(studentsFromRows(XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' })));
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function parsePdfFile(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const rows = {};
+                textContent.items.forEach(it => { const y = Math.round(it.transform[5]); (rows[y] = rows[y] || []).push(it); });
+                const pageText = Object.keys(rows).sort((a, b) => b - a).map(y => rows[y].sort((a, b) => a.transform[4] - b.transform[4]).map(i => i.str).join(' ')).join('\n');
+                fullText += "\n" + pageText;
+            }
+            processRawTextToStudents(fullText);
+        }
+
+        async function parseWordFile(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+                .then(result => processRawTextToStudents(result.value))
+                .catch(err => alert("Erreur lecture Word : " + err.message));
+        }
+
+        window.openPasteListModal = function(mode) {
+            pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
+            document.getElementById('pasteListTextarea').value = '';
+            document.getElementById('modalPasteList').classList.remove('hidden');
+        };
+
+        window.closePasteListModal = function() {
+            document.getElementById('modalPasteList').classList.add('hidden');
+        };
+
+        window.parseAndProcessPastedList = function() {
+            const text = document.getElementById('pasteListTextarea').value;
+            closePasteListModal();
+            processRawTextToStudents(text);
+        };
+
+        function processRawTextToStudents(rawText) {
+            const lines = String(rawText || '').split(/\r?\n/).filter(l => l.trim());
+            const rows = lines.map(line => line.trim().split(/[\t,;]+/).map(p => p.trim()).filter(Boolean));
+            let students = studentsFromRows(rows);
+            if (!students.length) {
+                students = [];
+                const seen = new Set();
+                lines.forEach(line => {
+                    const parts = line.trim().split(/[\t,; ]+/);
+                    if (parts.length < 2) return;
+                    const s = normalizeStudent(parts[0], parts.slice(1).join(' '));
+                    if (s && !seen.has(s.matricule)) { seen.add(s.matricule); students.push(s); }
+                });
+            }
+            displayImportPreview(students);
+        }
+
+        function displayImportPreview(students) {
+            if (students.length === 0) {
+                alert("Aucun étudiant valide trouvé. Format attendu : MATRICULE Nom et Prénoms (Excel : colonnes Matricule et Nom).");
+                return;
+            }
+            pendingImportedStudents = students;
+            const previewHtml = students.slice(0, 12).map(s => `${esc(s.matricule)} — ${esc(s.name)}`).join('<br>') + (students.length > 12 ? `<br>… +${students.length - 12} autres` : '');
+            const where = pendingImportMode === 'ue'
+                ? `ce cours (${activeUeId || 'UE'})`
+                : `le Niveau ${pendingTargetLevel}`;
+            const adminFb = document.getElementById('importFeedback');
+            const teacherFb = document.getElementById('teacherImportFeedback');
+            if (pendingImportMode === 'ue' && teacherFb) {
+                document.getElementById('teacherImportFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) pour ${where}.`;
+                teacherFb.classList.remove('hidden');
+                if (adminFb) adminFb.classList.add('hidden');
+            } else if (adminFb) {
+                document.getElementById('importFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) à être enregistré(s) pour ${where}.`;
+                const preview = document.getElementById('importPreviewTable');
+                if (preview) preview.innerHTML = previewHtml;
+                adminFb.classList.remove('hidden');
+                if (teacherFb) teacherFb.classList.add('hidden');
+            }
+        }
+
+        window.confirmSaveImportedStudents = async function() {
+            if (pendingImportedStudents.length === 0) return;
+            try {
+                if (pendingImportMode === 'ue') {
+                    if (!activeUeId) { showToast("Ouvrez d'abord un cours pour y importer la liste.", "error"); return; }
+                    await updUe(activeUeId, { studentList: pendingImportedStudents });
+                    showToast(`${pendingImportedStudents.length} étudiant(s) enregistrés pour l'appel de ${activeUeId}.`, "success");
+                    renderAttendanceTable();
+                    renderCcTable();
+                } else {
+                    if (!isAdminLoggedIn) { showToast("Seul l'administrateur peut enregistrer une liste de niveau.", "error"); return; }
+                    await setDoc(doc(db, "system", "class_lists"), { [`level${pendingTargetLevel}`]: pendingImportedStudents }, { merge: true });
+                    showToast(`Liste du Niveau ${pendingTargetLevel} (${pendingImportedStudents.length} étudiants) sauvegardée.`, "success");
+                }
+                document.getElementById('importFeedback')?.classList.add('hidden');
+                document.getElementById('teacherImportFeedback')?.classList.add('hidden');
+                pendingImportedStudents = [];
+            } catch (e) {
+                console.error(e);
+                showToast("Échec de l'enregistrement de la liste.", "error");
+            }
+        };
+
+        window.addStudentToUeList = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const s = normalizeStudent(
+                document.getElementById('teacherStudentMatInput')?.value,
+                document.getElementById('teacherStudentNameInput')?.value
+            );
+            if (!s) { showToast("Indiquez un matricule et un nom valides.", "error"); return; }
+            const list = studentsForUe(ue).slice();
+            if (list.some(x => x.matricule === s.matricule)) {
+                list.forEach((x, i) => { if (x.matricule === s.matricule) list[i] = s; });
+            } else list.push(s);
+            await updUe(activeUeId, { studentList: list });
+            document.getElementById('teacherStudentMatInput').value = '';
+            document.getElementById('teacherStudentNameInput').value = '';
+            showToast(`${s.name} ajouté à la liste d'appel.`, "success");
+        };
+
+        // PDF Exports
+        window.generateOfficialCcPdf = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "bold");
+            doc.text("RÉPUBLIQUE DU CAMEROUN", 14, 15);
+            doc.text("REPUBLIC OF CAMEROON", 140, 15);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.text("Paix - Travail - Patrie", 14, 19);
+            doc.text("Peace - Work - Fatherland", 140, 19);
+            doc.text("UNIVERSITÉ DE YAOUNDÉ I", 14, 25);
+            doc.text("THE UNIVERSITY OF YAOUNDE I", 140, 25);
+            doc.text("FACULTÉ DES SCIENCES", 14, 29);
+            doc.text("FACULTY OF SCIENCE", 140, 29);
+            doc.text("DÉPARTEMENT D'INFORMATIQUE", 14, 33);
+            doc.text("DEPARTMENT OF COMPUTER SCIENCE", 140, 33);
+
+            doc.setLineWidth(0.5);
+            doc.line(14, 36, 196, 36);
+
+            doc.setFontSize(13);
+            doc.setFont("helvetica", "bold");
+            doc.text(`PROCÈS-VERBAL DES NOTES DE CONTRÔLE CONTINU (CC)`, 14, 44);
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Unité d'Enseignement : ${esc(ue.code)} - ${ue.title || 'Non renseigné'}`, 14, 50);
+            doc.text(`Enseignant titulaire : ${ue.teacherName || 'Non défini'}`, 14, 55);
+            doc.text(`Promotion : Niveau ${ue.level} | Semestre ${ue.semester} | Année Académique : ${academicYear()}`, 14, 60);
+
+            const students = studentsForUe(ue);
+            const evals = ue.evaluations || [];
+            const grades = ue.studentGrades || {};
+
+            const headers = [["N°", "Matricule", "Nom et Prénoms", ...evals.map(e => `${e.title}\n(/${e.max})`), "Moyenne\n/ 20"]];
+            const body = students.map((std, i) => {
+                const stdGrades = grades[std.matricule] || {};
+                let sumWeighted = 0;
+                let count = 0;
+
+                const evalScores = evals.map(ev => {
+                    const g = stdGrades[ev.id];
+                    if (g !== undefined && !isNaN(g)) {
+                        sumWeighted += (parseFloat(g) / ev.max) * 20;
+                        count++;
+                        return String(g);
+                    }
+                    return "-";
+                });
+
+                const final = count > 0 ? (sumWeighted / count).toFixed(2) : "-";
+                return [i + 1, std.matricule, std.name, ...evalScores, final];
+            });
+
+            doc.autoTable({
+                startY: 65,
+                head: headers,
+                body: body,
+                theme: 'grid',
+                headStyles: { fillColor: [7, 89, 133], textColor: 255, halign: 'center', fontSize: 8 },
+                bodyStyles: { fontSize: 8 },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 10 },
+                    1: { halign: 'center', cellWidth: 25 },
+                    2: { halign: 'left' }
+                }
+            });
+
+            const finalY = doc.lastAutoTable.finalY || 150;
+            doc.setFontSize(9);
+            doc.text(`Fait à Yaoundé, le ${new Date().toLocaleDateString('fr-FR')}`, 130, finalY + 15);
+            doc.text("Signature de l'Enseignant :", 130, finalY + 22);
+
+            doc.save(`PV_CC_${esc(ue.code)}_Niveau${ue.level}.pdf`);
+            showToast("PV officiel de Contrôle Continu généré !", "success");
+        };
+
+        window.exportCcExcel = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const students = studentsForUe(ue);
+            const evals = ue.evaluations || [];
+            const grades = ue.studentGrades || {};
+            if (!students.length) { showToast("Aucune liste d'étudiants à exporter.", "warning"); return; }
+            const safe = (v) => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v;
+            const rows = [
+                [`PV des notes de CC — ${ue.code} ${ue.title || ''}`],
+                [`Enseignant : ${ue.teacherName || ''} | Niveau ${ue.level} | Semestre ${ue.semester} | ${academicYear()}`],
+                [],
+                ["N°", "Matricule", "Nom et Prénoms", ...evals.map(e => `${e.title} (/${e.max})`), "Moyenne CC /20"]
+            ];
+            students.forEach((std, i) => {
+                const g = grades[std.matricule] || {};
+                let sum = 0, count = 0;
+                const cells = evals.map(ev => {
+                    const v = g[ev.id];
+                    if (v !== undefined && !isNaN(v)) { sum += (parseFloat(v) / ev.max) * 20; count++; return parseFloat(v); }
+                    return "";
+                });
+                rows.push([i + 1, safe(std.matricule), safe(std.name), ...cells, count ? Math.round((sum / count) * 100) / 100 : ""]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 36 }, ...evals.map(() => ({ wch: 16 })), { wch: 16 }];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, ue.code);
+            XLSX.writeFile(wb, `Notes_CC_${ue.code}_Niveau${ue.level}.xlsx`);
+            showToast("Fichier Excel téléchargé.", "success");
+        };
+
+        window.generateAttendancePdf = function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+
+            const selectedDate = document.getElementById('attendanceDatePicker').value;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("UNIVERSITÉ DE YAOUNDÉ I - FACULTÉ DES SCIENCES", 14, 15);
+            doc.text(`FICHE D'APPEL ET DE PRÉSENCE DU COURS`, 14, 22);
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Matière : ${esc(ue.code)} (${ue.title || ''}) | Enseignant : ${ue.teacherName || ''}`, 14, 28);
+            doc.text(`Date de séance : ${selectedDate} | Salle : ${ue.room || 'UY1'}`, 14, 33);
+
+            const students = studentsForUe(ue);
+            const records = (ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {};
+
+            const body = students.map((std, i) => {
+                const status = records[std.matricule];
+                const statusText = status === true ? "PRÉSENT" : (status === false ? "ABSENT" : "NON POINTÉ");
+                return [i + 1, std.matricule, std.name, statusText];
+            });
+
+            doc.autoTable({
+                startY: 38,
+                head: [["N°", "Matricule", "Nom et Prénoms", "Statut d'Émargement"]],
+                body: body,
+                theme: 'striped',
+                headStyles: { fillColor: [15, 23, 42], textColor: 255 },
+                bodyStyles: { fontSize: 8 }
+            });
+
+            doc.save(`Presence_${esc(ue.code)}_${selectedDate}.pdf`);
+            showToast("Fiche d'appel téléchargée en PDF.", "success");
+        };
+
+        async function sendNotificationToAdmin(title, message, type = "info") {
+            if (isAdminLoggedIn || !auth.currentUser) return; // seul un enseignant déclenche une notification, et seul l'admin la reçoit
+            try {
+                await setDoc(doc(collection(db, "admin_notifications")), {
+                    title: title,
+                    message: message,
+                    type: type,
+                    by: auth.currentUser?.email || "",
+                    timestamp: serverTimestamp()
+                });
+            } catch (e) {
+                console.error("Erreur notif:", e);
+            }
+        }
+
+        window.deleteSingleNotification = async function(notifId) {
+            try {
+                await deleteDoc(doc(db, "admin_notifications", notifId));
+                showToast("Notification supprimée de Firebase", "info");
+            } catch (e) {
+                showToast("Erreur suppression", "error");
+            }
+        };
+
+        window.deleteAllAdminNotifications = async function() {
+            if (!confirm("Supprimer toutes les notifications de Firebase ?")) return;
+            try {
+                const snapshot = await getDocs(collection(db, "admin_notifications"));
+                const deletes = snapshot.docs.map(d => deleteDoc(d.ref));
+                await Promise.all(deletes);
+                showToast("Toutes les notifications ont été supprimées", "success");
+            } catch (e) {
+                showToast("Erreur lors de la purge", "error");
+            }
+        };
+
+        function updateGlobalAbsenceAlert() {
+            const absentUes = Object.values(uesData).filter(u => u.isAbsentToday);
+            const alertBox = document.getElementById('globalAbsenceAlert');
+            const alertText = document.getElementById('globalAbsenceText');
+            if (!alertBox || !alertText) return;
+
+            if (isAdminDashboardVisible() && absentUes.length > 0) {
+                const names = absentUes.map(u => `${u.code} (${u.teacherName || 'Prof non nommé'})`).join(', ');
+                alertText.textContent = `Avis d'absence d'enseignant aujourd'hui : ${names}`;
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // SYNCHRONISATION GROUPÉE FIREBASE (BATCH)
+        // ==========================================
+        let isInitializing = false;
+
+        async function initializeProgramWithBatch() {
+            if (isInitializing) return;
+            isInitializing = true;
+            try {
+                const batch = writeBatch(db);
+                const existing = new Set((await getDocs(collection(db, "ues"))).docs.map(d => d.id));
+                PROGRAM_STRUCTURE.filter(i => !existing.has(i.code)).forEach(item => {
+                    const docRef = doc(db, "ues", item.code);
+                    batch.set(docRef, {
+                        code: item.code,
+                        level: item.level,
+                        semester: item.semester,
+                        title: "",
+                        teacherName: "",
+                        teacherUid: "",
+                        hoursTaught: 0,
+                        totalRequiredHours: 45,
+                        room: item.defaultRoom,
+                        schedule: item.defaultSchedule,
+                        isAbsentToday: false,
+                        evaluations: [],
+                        
+                    }, { merge: true });
+                });
+                await batch.commit();
+                console.log("⚡ Synchronisation groupée réussie.");
+            } catch (err) {
+                console.error("Erreur batch:", err);
+            } finally {
+                isInitializing = false;
+            }
+        }
+
+        // ==========================================
+        // ÉCOUTEURS TEMPS RÉEL (FIRESTORE LISTENERS) : administration
+        // ==========================================
+        try {
+            onSnapshot(collection(db, "ues"), (snapshot) => {
+                setConn(!snapshot.metadata.fromCache && navigator.onLine);
+                if (snapshot.empty && snapshot.metadata.fromCache) return; // hors-ligne : on n'écrase rien
+                if (snapshot.empty) { if (isAdminLoggedIn) initializeProgramWithBatch(); return; }
+                    snapshot.forEach((docSnap) => {
+                        if (!PROGRAM_STRUCTURE.some(i => i.code === docSnap.id)) return; // anciennes UE hors programme
+                        const data = docSnap.data();
+                        uesData[docSnap.id] = { ...uesData[docSnap.id], ...data };
+                        uesData[docSnap.id].room = ROOM_BY_LEVEL[uesData[docSnap.id].level] || uesData[docSnap.id].room;
+                        uesData[docSnap.id].isAbsentToday = !!data.isAbsentToday && data.absenceDate === todayStr();
+                    });
+                if (isAdminLoggedIn) renderAdminDashboard();
+                if (activeUeId && uesData[activeUeId] && snapshot.docChanges().some(c => c.doc.id === activeUeId)) renderKeepingFocus();
+                updateGlobalAbsenceAlert();
+                if (isAdminLoggedIn && !snapshot.metadata.fromCache && PROGRAM_STRUCTURE.some(i => !snapshot.docs.find(d => d.id === i.code))) initializeProgramWithBatch();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                setConn(false);
+                showToast("Impossible de joindre la base de données.", "error");
+            });
+
+            window.attachPrivateListeners = function(signed, admin) {
+                listUnsubs.forEach(u => u());
+                listUnsubs = [];
+                if (!signed) { classLists = { 1: [], 2: [], 3: [] }; adminNotifications = []; return; }
+                listUnsubs.push(onSnapshot(doc(db, "system", "class_lists"), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        classLists[1] = data.level1 || [];
+                        classLists[2] = data.level2 || [];
+                        classLists[3] = data.level3 || [];
+                    }
+                    if (activeUeId && uesData[activeUeId]) renderKeepingFocus();
+                    renderClassListStats();
+                }, (e) => console.error(e)));
+                if (admin) {
+                    listUnsubs.push(onSnapshot(collection(db, "ue_assignments"), (snap) => {
+                        assignments = {};
+                        snap.forEach(d => assignments[d.id] = d.data().email || '');
+                        renderAdminUeTable();
+                    }, (e) => console.error(e)));
+                    let first = true;
+                    listUnsubs.push(onSnapshot(collection(db, "admin_notifications"), (snapshot) => {
+                        if (!first) snapshot.docChanges().forEach(c => { if (c.type === 'added' && !c.doc.metadata.hasPendingWrites) liveNotify(c.doc.data()); });
+                        first = false;
+                        adminNotifications = [];
+                        snapshot.forEach((d) => adminNotifications.push({ id: d.id, ...d.data() }));
+                        adminNotifications.sort((a, b) => (b.timestamp?.seconds || 9e9) - (a.timestamp?.seconds || 9e9));
+                        renderAdminNotifications();
+                    }, (e) => console.error(e)));
+                }
+            };
+
+            let firstAuthEvent = true;
+            onAuthStateChanged(auth, async (user) => {
+                if (firstAuthEvent) { firstAuthEvent = false; if (user) { await signOut(auth); return; } }
+                currentUser = user;
+                resetIdle();
+                if (!user) { isAdminLoggedIn = false; applyAdminUI(false); navigateTo('admin'); }
+                attachPrivateListeners(!!user, isAdminLoggedIn);
+            });
+        } catch (e) {
+            console.error("Erreur d'initialisation Firestore:", e);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            navigateTo('admin');   // affiche l'écran verrouillé tant qu'il n'y a pas de connexion
+            openAdminModal();
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

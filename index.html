@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UY1 - Suivi Pédagogique & Évaluations CC</title>
+    <title>Suivi pédagogique • UY1 ICT4D</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -93,22 +93,6 @@
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-sky-200">
 
-    <!-- ============================================== -->
-    <!-- ALERTE D'ABSENCE D'ENSEIGNANT (TEMPS RÉEL)    -->
-    <!-- ============================================== -->
-    <div id="globalAbsenceAlert" class="hidden bg-amber-500 text-white px-4 py-2 text-sm font-semibold shadow-md flex items-center justify-between no-print transition-all">
-        <div class="flex items-center space-x-2 container mx-auto">
-            <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 animate-pulse"></i>
-            <span id="globalAbsenceText">Alerte : Un enseignant a signalé son absence pour aujourd'hui.</span>
-        </div>
-        <button onclick="document.getElementById('globalAbsenceAlert').classList.add('hidden')" class="text-white hover:text-amber-100">
-            <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- BARRE DE NAVIGATION PRINCIPALE                -->
-    <!-- ============================================== -->
     <header class="bg-gradient-to-r from-sky-950 via-slate-900 to-sky-900 text-white shadow-lg sticky top-0 z-40 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 sm:h-20">
@@ -129,30 +113,15 @@
                 <!-- Navigation droite -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     <button onclick="toggleTheme()" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Mode clair / sombre" aria-label="Changer de thème"><i data-lucide="moon" class="w-5 h-5"></i></button>
-                    <button id="btnAdminNotifBell" onclick="openAdminNotificationsModal()" class="hidden relative p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Notifications Admin">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                        <span id="adminNotifBadge" class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full ring-2 ring-slate-900 items-center justify-center"></span>
-                    </button>
-
-                    <span id="adminModeIndicator" class="hidden items-center px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Admin Connecté
-                    </span>
-
-                    <button id="btnAdminNav" onclick="handleAdminButtonClick()" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm">
-                        <i data-lucide="shield" class="w-4 h-4"></i>
-                        <span id="btnAdminNavText">Accès Admin</span>
-                    </button>
+                    <a id="btnAdminNav" href="admin.html" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="shield" class="w-4 h-4"></i><span>Accès Admin</span></a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- ============================================== -->
-    <!-- CONTENEUR DES VUES                             -->
-    <!-- ============================================== -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
-        <!-- VUE 1 : PORTAIL GÉNÉRAL (NIVEAUX 1, 2, 3) -->
+<!-- VUE 1 : PORTAIL GÉNÉRAL (NIVEAUX 1, 2, 3) -->
         <div id="view-portal" class="space-y-6">
             <section class="hero rounded-3xl p-6 sm:p-8 text-white">
                 <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
@@ -168,7 +137,7 @@
                     <dl class="board grid grid-cols-3 gap-4 sm:gap-8 text-center">
                         <div><dd id="statUe" class="board-num">0</dd><dt>matières au programme</dt></div>
                         <div><dd id="statHours" class="board-num">0%</dd><dt>des heures effectuées</dt></div>
-                        <div><dd id="statAbsent" class="board-num">0</dd><dt>absence(s) aujourd'hui</dt></div>
+                        <div><dd id="statAbsent" class="board-num">0</dd><dt>matières prises en charge</dt></div>
                     </dl>
                 </div>
                 <div class="mt-6 h-1.5 rounded-full bg-white/15 overflow-hidden"><div id="statBar" class="h-full rounded-full" style="width:0%;background:var(--signal)"></div></div>
@@ -367,6 +336,28 @@
                         </div>
                     </div>
 
+                    <div class="p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Importer la liste d'étudiants pour l'appel</p>
+                                <p id="classListSourceHint" class="text-xs text-slate-500">Excel, CSV, PDF, Word, ou saisie manuelle. La liste est enregistrée pour ce cours.</p>
+                            </div>
+                            <button onclick="openPasteListModal('ue')" class="px-3 py-1.5 bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-semibold">Coller une liste</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input type="file" id="teacherImportFileInput" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt" onchange="handleClassListFileUpload(event, 'ue')" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 cursor-pointer border border-indigo-200 rounded-xl p-1 bg-white">
+                            <input type="text" id="teacherStudentMatInput" placeholder="Matricule" class="px-3 py-2 border border-indigo-200 rounded-xl text-xs font-mono">
+                            <div class="flex gap-2">
+                                <input type="text" id="teacherStudentNameInput" placeholder="Nom et prénoms" class="flex-1 px-3 py-2 border border-indigo-200 rounded-xl text-xs">
+                                <button onclick="addStudentToUeList()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Ajouter</button>
+                            </div>
+                        </div>
+                        <div id="teacherImportFeedback" class="hidden p-3 bg-white border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between gap-3">
+                            <span id="teacherImportFeedbackText"></span>
+                            <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm">Enregistrer pour l'appel</button>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
                             <span class="text-xs text-slate-500 font-medium">Inscrits</span>
@@ -420,188 +411,9 @@
             </div>
         </div>
 
-        <!-- VUE 3 : TABLEAU DE BORD SUPERVISEUR ADMIN -->
-        <div id="view-admin" class="hidden space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-lg border border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <div class="flex items-center space-x-3">
-                        <div class="p-2 bg-sky-500/20 rounded-xl border border-sky-400/30 text-sky-300">
-                            <i data-lucide="shield-alert" class="w-6 h-6"></i>
-                        </div>
-                        <h2 class="text-2xl font-black tracking-tight">Supervision Générale de l'Administration</h2>
-                    </div>
-                    <p class="text-sky-200/80 text-xs sm:text-sm mt-2 max-w-2xl">
-                        Surveillance en direct des cours, progression horaire, mot de passe de chaque UE, occupation des salles et import des listes.
-                    </p>
-                </div>
+            </main>
 
-                <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="sendPasswordReset()" class="px-4 py-2 bg-sky-800 hover:bg-sky-700 text-sky-200 hover:text-white font-semibold text-xs sm:text-sm rounded-xl transition border border-sky-600/40 flex items-center space-x-1.5 shadow">
-                        <i data-lucide="key" class="w-4 h-4"></i>
-                        <span>Changer le MDP Maître Admin</span>
-                    </button>
-                    <!-- BOUTON DÉCONNEXION STRICTE ADMIN -->
-                    <button onclick="exitAdminView()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm rounded-xl transition shadow flex items-center space-x-2">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span>Déconnexion Sécurisée</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Activité en direct -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-bold text-slate-900 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>Activité en direct</h3>
-                    <button onclick="openAdminNotificationsModal()" class="text-xs text-sky-700 hover:underline font-semibold">Tout voir</button>
-                </div>
-                <div id="adminLiveFeed" class="space-y-1.5"><p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p></div>
-            </div>
-
-            <!-- Statistiques globales -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Matières UEs</span>
-                    <div id="adminStatTotalUes" class="text-3xl font-black text-slate-900 mt-2">0</div>
-                    <p class="text-xs text-slate-500 mt-1">Niveau 1, 2 et 3 (S1 + S2)</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Avancement Global</span>
-                    <div id="adminStatAvgProgress" class="text-3xl font-black text-sky-700 mt-2">0%</div>
-                    <p class="text-xs text-slate-500 mt-1">Moyenne des heures exécutées</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contrôles Continus Réalisés</span>
-                    <div id="adminStatTotalCcs" class="text-3xl font-black text-emerald-600 mt-2">0</div>
-                    <p class="text-xs text-slate-500 mt-1">Toutes promotions confondues</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Absences Signalées</span>
-                    <div id="adminStatAbsences" class="text-3xl font-black text-amber-600 mt-2">0</div>
-                    <p class="text-xs text-slate-500 mt-1">Enseignants indisponibles</p>
-                </div>
-            </div>
-
-            <!-- Occupation des salles UY1 -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <i data-lucide="layout-grid" class="w-5 h-5 text-sky-700"></i>
-                        <h3 class="text-base font-bold text-slate-900">État d'Occupation des Salles (Faculté des Sciences)</h3>
-                    </div>
-                    <span class="text-xs font-medium text-slate-500">Statut en temps réel</span>
-                </div>
-
-                <div id="roomsOccupancyGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Rempli en JS -->
-                </div>
-            </div>
-
-            <!-- Module d'import de liste de classe (Excel, PDF, Word, Texte) -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                            <i data-lucide="upload-cloud" class="w-5 h-5 text-indigo-600"></i>
-                            <span>Importation des Listes d'Étudiants par Niveau</span>
-                        </h3>
-                        <p class="text-xs text-slate-500">Téléversez le fichier officiel (Excel .xlsx, PDF, Word .docx ou collez le texte). Les matricules et noms seront synchronisés pour tous les cours du niveau.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700">Promotion / Niveau Cible :</label>
-                        <select id="importLevelSelect" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500">
-                            <option value="1">Niveau 1 (ICTL1 - Tronc Commun)</option>
-                            <option value="2">Niveau 2 (ICTL2 - GL, Réseau, Sécurité)</option>
-                            <option value="3">Niveau 3 (ICTL3 - GL, RAM, Sécurité)</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-700">Fichier (Excel, PDF, Word) :</label>
-                        <input type="file" id="importFileInput" accept=".xlsx,.xls,.pdf,.docx,.doc,.txt" onchange="handleClassListFileUpload(event)" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer border border-slate-300 rounded-xl p-1 bg-slate-50">
-                    </div>
-
-                    <div class="space-y-1.5 flex flex-col justify-end">
-                        <button onclick="openPasteListModal()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 transition">
-                            <i data-lucide="clipboard-type" class="w-4 h-4"></i>
-                            <span>Coller du texte brut (Matricule + Nom)</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="importFeedback" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
-                    <span id="importFeedbackText">120 étudiants chargés avec succès.</span>
-                    <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm">Enregistrer dans Firebase</button>
-                </div>
-            </div>
-
-            <!-- Registre global des UEs avec mots de passe en direct -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">Registre Global des Enseignements & Mots de Passe</h3>
-                        <p class="text-xs text-slate-500">Visualisez en temps réel qui enseigne quoi, le mot de passe actif et accédez directement au cours en tant qu'administrateur.</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="migrateOldData()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Migrer les anciennes données</button>
-                        <button onclick="syncTimetable()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold whitespace-nowrap">Synchroniser l'emploi du temps</button>
-                        <input type="text" id="adminSearchUe" onkeyup="filterAdminUeTable()" placeholder="Rechercher code, prof, matière..." class="px-3 py-1.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 w-48 sm:w-64">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
-                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                                <th class="p-3">UE Code</th>
-                                <th class="p-3">Niv/Sem</th>
-                                <th class="p-3">Intitulé</th>
-                                <th class="p-3">Enseignant Titulaire</th>
-                                <th class="p-3 text-center">Progression</th>
-                                <th class="p-3 text-center">CCs</th>
-                                
-                                <th class="p-3 text-center">Statut</th>
-                                <th class="p-3 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUeTableBody" class="divide-y divide-slate-200 bg-white font-medium">
-                            <!-- Généré en JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Notifications Administrateur (Supprimables dans Firebase) -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                            <i data-lucide="bell-ring" class="w-5 h-5 text-amber-500"></i>
-                            <span>Journal des Notifications Administrateur</span>
-                        </h3>
-                        <p class="text-xs text-slate-500">Historique des connexions des enseignants et alertes d'absences.</p>
-                    </div>
-                    <button onclick="deleteAllAdminNotifications()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold flex items-center space-x-1">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        <span>Tout supprimer de Firebase</span>
-                    </button>
-                </div>
-
-                <div id="adminNotificationsList" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
-                    <!-- Rempli en JS -->
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- ============================================== -->
-    <!-- MODALS ET DIALOGUES DE SÉCURITÉ                -->
-    <!-- ============================================== -->
-
-    <!-- MODAL 1 : AUTHENTIFICATION ENSEIGNANT -->
+<!-- MODAL 1 : AUTHENTIFICATION ENSEIGNANT -->
     <div id="modalTeacherAuth" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div class="flex items-center space-x-3">
@@ -642,7 +454,7 @@
 
             <div id="authErrorMessage" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-semibold flex items-center space-x-1.5">
                 <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-                <span id="authErrorText">Mot de passe incorrect.</span>
+                <span id="authErrorText">Connexion impossible.</span>
             </div>
 
             <div class="flex items-center justify-end space-x-3 pt-2">
@@ -655,100 +467,8 @@
         </div>
     </div>
 
-    <!-- MODAL 2 : AUTHENTIFICATION ADMINISTRATEUR -->
-    <div id="modalAdminAuth" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-slate-900 text-sky-400 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="shield" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-black text-slate-900">Espace Administrateur / Doyen</h3>
-                    <p class="text-xs text-slate-500">Saisissez le mot de passe maître de supervision.</p>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-700">Email administrateur :</label>
-                <input type="email" id="adminAuthEmailInput" autocomplete="email" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
-                <label class="text-xs font-bold text-slate-700">Mot de passe :</label>
-                <div class="relative">
-                    <input type="password" id="adminAuthPasswordInput" onkeydown="if(event.key==='Enter') submitAdminAuth()" placeholder="Entrez le mot de passe admin..." class="w-full p-3 pr-10 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 font-mono">
-                    <button type="button" onclick="togglePasswordVisibility('adminAuthPasswordInput', 'adminPwdToggleIcon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
-                        <i data-lucide="eye" id="adminPwdToggleIcon" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div id="adminAuthErrorMessage" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-semibold flex items-center space-x-1.5">
-                <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-                <span id="adminAuthErrorText">Mot de passe maître invalide.</span>
-            </div>
-
-            <div class="flex items-center justify-end space-x-3 pt-2">
-                <button onclick="closeAdminAuthModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
-                <button onclick="submitAdminAuth()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-sky-400 rounded-xl text-xs font-bold transition shadow flex items-center space-x-1.5">
-                    <i data-lucide="unlock" class="w-4 h-4"></i>
-                    <span>Ouvrir l'Espace Admin</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL 3 : CHANGEMENT DE MOT DE PASSE (ENSEIGNANT) -->
-    <div id="modalChangePassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="key" class="w-5 h-5 text-sky-700"></i>
-                <span>Modifier le Mot de Passe de l'UE</span>
-            </h3>
-            <p class="text-xs text-slate-500">Ce nouveau mot de passe protégera l'accès à votre matière. Il apparaîtra automatiquement dans la vue superviseur de l'administrateur.</p>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-bold text-slate-700">Nouveau mot de passe :</label>
-                    <input type="password" id="newTeacherPasswordInput" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs font-mono">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-700">Confirmer le mot de passe :</label>
-                    <input type="password" id="confirmTeacherPasswordInput" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs font-mono">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end space-x-2 pt-2">
-                <button onclick="closeChangePasswordModal()" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Annuler</button>
-                <button onclick="saveNewTeacherPassword()" class="px-4 py-2 bg-sky-900 hover:bg-sky-800 text-white rounded-xl text-xs font-bold">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL 4 : CHANGEMENT MOT DE PASSE MAÎTRE ADMIN -->
-    <div id="modalChangeAdminPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                <i data-lucide="shield-check" class="w-5 h-5 text-amber-600"></i>
-                <span>Changer le Mot de Passe Maître</span>
-            </h3>
-            <p class="text-xs text-slate-500">Mettez à jour le mot de passe maître d'administration du système.</p>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs font-bold text-slate-700">Nouveau mot de passe maître :</label>
-                    <input type="password" id="newAdminMasterPasswordInput" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs font-mono">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-700">Confirmer le mot de passe :</label>
-                    <input type="password" id="confirmAdminMasterPasswordInput" class="w-full mt-1 p-2.5 border border-slate-300 rounded-xl text-xs font-mono">
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end space-x-2 pt-2">
-                <button onclick="closeChangeAdminPasswordModal()" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold">Annuler</button>
-                <button onclick="saveNewAdminMasterPassword()" class="px-4 py-2 bg-slate-900 text-sky-400 rounded-xl text-xs font-bold">Mettre à jour</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL 5 : AJOUT D'UN CC -->
     <div id="modalAddCc" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-200">
@@ -804,7 +524,8 @@
     <!-- ============================================== -->
     <!-- INITIALISATION FIREBASE & APPLICATION RAPIDE   -->
     <!-- ============================================== -->
-    <script type="module">
+        <script type="module">
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { 
             getFirestore, 
@@ -821,7 +542,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         // Configuration Firebase
         const firebaseConfig = {
@@ -836,6 +557,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        setPersistence(auth, inMemoryPersistence); // la session ne survit jamais à un rechargement
 
         // PROGRAMME OFFICIEL DES MATIÈRES ICT4D
         const PROGRAM_STRUCTURE = [
@@ -960,7 +682,7 @@
             `Salle : ${u.room || '?'}`,
             `Horaires : ${u.schedule || '?'}`,
             `Heures : ${u.hoursTaught || 0}/${u.totalRequiredHours || 45}`,
-            ...(u.isAbsentToday ? ["Statut : ABSENT aujourd'hui"] : [])
+            ...(u.isAbsentToday && isAdminLoggedIn ? ["Statut : ABSENT aujourd'hui"] : [])
         ].join('\n');
         const HELP = "Requête non comprise.\nEssayez :\n- « ICT205 » ou « salle de ICT101 »\n- « cours demain » ou « cours lundi »\n- « cours maintenant »\n- « absences »\n- « matières du niveau 2 »\n- « salle R101 »";
 
@@ -975,6 +697,7 @@
             if (/\b(bonjour|salut|bonsoir|hello|coucou)\b/.test(t)) return "Bip bip ! Bonjour.\nDemandez-moi un cours (ex. ICT205), une salle, un enseignant ou « cours demain ».";
             if (/\b(aide|help)\b|que sais|que peux/.test(t)) return HELP;
             if (/absen|indisponible/.test(t)) {
+                if (!isAdminLoggedIn) return "Les avis d'absence sont réservés à l'administration.";
                 const a = all.filter(u => u.isAbsentToday);
                 return a.length ? "Absences du jour :\n" + a.map(u => `- ${u.code} : ${u.teacherName || 'enseignant'}`).join('\n') : "Calcul terminé. Aucune absence déclarée aujourd'hui.";
             }
@@ -1059,7 +782,7 @@
             const pct = need ? Math.round((done / need) * 100) : 0;
             countTo(document.getElementById('statUe'), all.length);
             countTo(document.getElementById('statHours'), pct, '%');
-            countTo(document.getElementById('statAbsent'), all.filter(u => u.isAbsentToday).length);
+            countTo(document.getElementById('statAbsent'), all.filter(u => u.teacherUid).length);
             const bar = document.getElementById('statBar');
             if (bar) bar.style.width = pct + '%';
         };
@@ -1071,27 +794,7 @@
         setTimeout(() => document.documentElement.classList.remove('intro'), 1600);
 
         // ===== NOTIFICATIONS ADMIN =====
-        const LV = {
-            urgent:    { label: 'Urgent',    box: 'border-l-4 border-l-rose-500 bg-rose-50',   txt: 'text-rose-700',  icon: '🚨' },
-            important: { label: 'Important', box: 'border-l-4 border-l-amber-500 bg-amber-50', txt: 'text-amber-700', icon: '⚠️' },
-            info:      { label: 'Info',      box: 'border-l-4 border-l-sky-500 bg-slate-50',   txt: 'text-sky-700',   icon: 'ℹ️' }
-        };
-        const levelOf = (n) => ({ absence: 'urgent', urgent: 'urgent', presence: 'important', important: 'important' }[n.type] || 'info');
         const notifThrottle = {};
-        const notifSeenAt = () => { try { return +localStorage.getItem('adminNotifSeen') || 0; } catch (e) { return 0; } };
-        window.markNotifsSeen = function() { try { localStorage.setItem('adminNotifSeen', String(Date.now())); } catch (e) {} renderAdminNotifications(); };
-        function beep() {
-            try {
-                const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
-                o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.05;
-                o.start(); o.stop(c.currentTime + 0.25);
-            } catch (e) {}
-        }
-        function liveNotify(n) {
-            const lv = levelOf(n);
-            showToast(`${LV[lv].icon} ${n.title} : ${n.message}`, lv === 'urgent' ? 'error' : lv === 'important' ? 'warning' : 'info');
-            if (lv === 'urgent') beep();
-        }
         function notifyFromChange(code, data) {
             if (isAdminLoggedIn) return; // l'admin n'est pas notifié de ses propres actions
             const ue = uesData[code] || {};
@@ -1115,14 +818,16 @@
             if (!currentUser) return;
             idleTimer = setTimeout(async () => {
                 showToast("Session fermée par sécurité (15 min d'inactivité).", "warning");
-                if (isAdminLoggedIn) await exitAdminView(); else exitAndLockTeacherWorkspace();
+                exitAndLockTeacherWorkspace();
                 if (auth.currentUser) await signOut(auth);
             }, 15 * 60 * 1000);
         }
         ['click', 'keydown', 'touchstart', 'mousemove'].forEach(ev => window.addEventListener(ev, resetIdle, { passive: true }));
 
+        const ROOM_BY_LEVEL = { 1: 'R101', 2: 'S003/S008', 3: 'S107' }; // L1 : R101, L2 : S003/S008, L3 : S107, quel que soit le semestre
+
         let currentUser = null, privUnsub = null, listUnsubs = [], assignments = {};
-        const PRIV = ['studentGrades', 'attendance', 'history'];
+        const PRIV = ['studentGrades', 'attendance', 'history', 'studentList'];
         async function updUe(code, data) {
             if (!navigator.onLine) showToast("Hors-ligne : modification enregistrée, envoi dès que la connexion revient.", "warning");
             const pub = {}, priv = {};
@@ -1151,6 +856,7 @@
         let classLists = { 1: [], 2: [], 3: [] };
         let pendingImportedStudents = [];
         let pendingTargetLevel = 1;
+        let pendingImportMode = 'level';
         let adminNotifications = [];
 
         // Pré-remplissage local immédiat
@@ -1200,7 +906,7 @@
 
                 return `
                     <div onclick="requestUeAccess('${esc(ue.code)}')" class="bg-white rounded-2xl p-5 border border-slate-200 hover:border-sky-400 hover:shadow-md transition cursor-pointer flex flex-col justify-between group relative overflow-hidden">
-                        ${ue.isAbsentToday ? `
+                        ${ue.isAbsentToday && isAdminLoggedIn ? `
                             <div class="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-bl-xl shadow-sm flex items-center space-x-1">
                                 <i data-lucide="bell-off" class="w-3 h-3"></i>
                                 <span>Enseignant Indisponible</span>
@@ -1257,17 +963,8 @@
         window.navigateTo = function(viewName) {
             document.getElementById('view-portal').classList.add('hidden');
             document.getElementById('view-teacher').classList.add('hidden');
-            document.getElementById('view-admin').classList.add('hidden');
-
-            if (viewName === 'portal') {
-                document.getElementById('view-portal').classList.remove('hidden');
-                renderUesGrid();
-            } else if (viewName === 'teacher') {
-                document.getElementById('view-teacher').classList.remove('hidden');
-            } else if (viewName === 'admin') {
-                document.getElementById('view-admin').classList.remove('hidden');
-                renderAdminDashboard();
-            }
+            if (viewName === 'teacher') document.getElementById('view-teacher').classList.remove('hidden');
+            else { document.getElementById('view-portal').classList.remove('hidden'); renderUesGrid(); }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (window.lucide) lucide.createIcons();
         };
@@ -1363,6 +1060,10 @@
                 openTeacherWorkspace(ueCode);
                 return;
             }
+            if (currentUser && ue.teacherUid && ue.teacherUid !== currentUser.uid) {
+                showToast(`Cette matière est rattachée à un autre enseignant. Vous n'avez accès qu'à votre propre matière.`, "warning");
+                return;
+            }
             document.getElementById('authModalUeTitle').textContent = `Accès Enseignant : ${ue.code}`;
             document.getElementById('teacherAuthPasswordInput').value = '';
             document.getElementById('authCreateAccount').checked = false;
@@ -1407,6 +1108,7 @@
                         return fail(`Compte créé. Un email de vérification a été envoyé à ${email}. Cliquez sur le lien reçu (regardez aussi les spams), puis reconnectez-vous ici.`);
                     }
                     const cred = await signInWithEmailAndPassword(auth, email, pass);
+                    if ((await getDoc(doc(db, "admins", cred.user.uid))).exists()) { await signOut(auth); return fail("Ce compte est un compte administrateur : utilisez « Accès Admin »."); }
                     await cred.user.reload();
                     if (!cred.user.emailVerified) {
                         await sendEmailVerification(cred.user);
@@ -1452,72 +1154,12 @@
         };
 
         // Authentification Admin
-        window.handleAdminButtonClick = function() {
-            if (isAdminLoggedIn) navigateTo('admin');
-            else openAdminModal();
-        };
-
-        window.openAdminModal = function() {
-            document.getElementById('adminAuthPasswordInput').value = '';
-            document.getElementById('adminAuthErrorMessage').classList.add('hidden');
-            document.getElementById('modalAdminAuth').classList.remove('hidden');
-            if (window.lucide) lucide.createIcons();
-            setTimeout(() => document.getElementById('adminAuthPasswordInput').focus(), 150);
-        };
-
-        window.closeAdminAuthModal = function() {
-            document.getElementById('modalAdminAuth').classList.add('hidden');
-        };
-
-        window.applyAdminUI = function(on) {
-            document.getElementById('btnAdminNavText').textContent = on ? "Espace Admin (Actif)" : "Accès Admin";
-            document.getElementById('btnAdminNotifBell').classList.toggle('hidden', !on);
-            const b = document.getElementById('adminModeIndicator');
-            b.classList.toggle('hidden', !on);
-            b.classList.toggle('flex', on);
-        };
-
-        window.submitAdminAuth = async function() {
-            const email = document.getElementById('adminAuthEmailInput').value.trim();
-            const pass = document.getElementById('adminAuthPasswordInput').value;
-            const errorBox = document.getElementById('adminAuthErrorMessage');
-            const errorText = document.getElementById('adminAuthErrorText');
-            const fail = (m) => { errorBox.classList.remove('hidden'); errorText.textContent = m; };
-            if (!email || !pass) return fail("Email et mot de passe requis.");
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, pass);
-                const isAdm = (await getDoc(doc(db, "admins", cred.user.uid))).exists();
-                if (!isAdm) { await signOut(auth); return fail("Ce compte n'a pas les droits administrateur."); }
-            } catch (e) { return fail(authMsg(e)); }
-            isAdminLoggedIn = true;
-            closeAdminAuthModal();
-            applyAdminUI(true);
-            navigateTo('admin');
-            showToast("Authentification Administrateur validée.", "success");
-        };
-
-        window.exitAdminView = async function() {
-            isAdminLoggedIn = false;
-            activeUeId = null;
-            applyAdminUI(false);
-            await signOut(auth);
-            navigateTo('portal');
-            showToast("🔒 Session Administrateur fermée.", "info");
-        };
-
-        window.openAdminNotificationsModal = function() {
-            navigateTo('admin');
-            const list = document.getElementById('adminNotificationsList');
-            if (list) list.scrollIntoView({ behavior: 'smooth' });
-        };
-
-        // Workspace Enseignant
         window.openTeacherWorkspace = async function(ueCode) {
             if (privUnsub) { privUnsub(); privUnsub = null; }
             const ref = doc(db, "ues_private", ueCode);
             try {
                 const snap = await getDoc(ref);
-                if (!snap.exists()) await setDoc(ref, { studentGrades: {}, attendance: {}, history: [] });
+                if (!snap.exists()) await setDoc(ref, { studentGrades: {}, attendance: {}, history: [], studentList: [] });
             } catch (e) { console.error(e); showToast("Accès aux données refusé.", "error"); return; }
             activeUeId = ueCode;
             privUnsub = onSnapshot(ref, (snap) => {
@@ -1575,19 +1217,21 @@
             if (!ue) return;
             if (ue.lastSessionDate === todayStr()) { showToast("Une séance a déjà été validée aujourd'hui.", "warning"); return; }
 
-            const newHours = (ue.hoursTaught || 0) + 3;
+            const total = ue.totalRequiredHours || 45;
+            if ((ue.hoursTaught || 0) >= total) { showToast(`Le volume horaire de ${total}h est déjà atteint.`, "info"); return; }
+            const newHours = Math.min((ue.hoursTaught || 0) + 3, total);
             await updUe(activeUeId, {
                 hoursTaught: newHours,
                 lastSessionDate: todayStr(),
                 history: [
                     { action: "Validation Séance (+3h)", date: new Date().toISOString(), detail: `Pointage effectué. Total: ${newHours}h` },
-                    ...(ue.history || [])
+                    ...(ue.history || []).slice(0, 50)
                 ]
             });
 
             sendNotificationToAdmin(
                 `Séance Validée : ${ue.code}`,
-                `L'enseignant (${ue.teacherName}) a validé 3h de cours. Progression : ${newHours}h / 45h.`,
+                `L'enseignant (${ue.teacherName}) a validé 3h de cours. Progression : ${newHours}h / ${total}h.`,
                 "presence"
             );
 
@@ -1605,7 +1249,7 @@
                 absenceReason: newState ? "Indisponibilité signalée par l'enseignant" : "",
                 history: [
                     { action: newState ? "Déclaration d'absence" : "Reprise des cours", date: new Date().toISOString(), detail: newState ? "Enseignant indisponible aujourd'hui" : "Absence levée" },
-                    ...(ue.history || [])
+                    ...(ue.history || []).slice(0, 50)
                 ]
             });
 
@@ -1627,7 +1271,7 @@
             const ue = uesData[activeUeId];
             if (!ue) return;
 
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
             const grades = ue.studentGrades || {};
 
@@ -1659,7 +1303,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="${4 + evals.length}" class="p-6 text-center text-slate-400 italic">
-                            Aucune liste d'étudiants importée pour le Niveau ${ue.level}. L'administrateur doit importer la liste officielle.
+                            Aucune liste d'étudiants. Importez un fichier (Excel, CSV, PDF, Word) dans l'onglet Appel, ou demandez à l'administrateur d'importer la liste du niveau.
                         </td>
                     </tr>
                 `;
@@ -1762,7 +1406,7 @@
                 evaluations: evals,
                 history: [
                     { action: "Ajout CC", date: new Date().toISOString(), detail: `Création de ${title} sur ${maxVal}` },
-                    ...(ue.history || [])
+                    ...(ue.history || []).slice(0, 50)
                 ]
             });
 
@@ -1780,7 +1424,7 @@
                 evaluations: evals,
                 history: [
                     { action: "Suppression CC", date: new Date().toISOString(), detail: `Suppression de ${removed.title}` },
-                    ...(ue.history || [])
+                    ...(ue.history || []).slice(0, 50)
                 ]
             });
 
@@ -1792,7 +1436,7 @@
             const ue = uesData[activeUeId];
             if (!ue) return;
 
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const picker = document.getElementById('attendanceDatePicker');
             if (!picker.value) picker.value = new Date().toISOString().split('T')[0];
             const selectedDate = picker.value;
@@ -1802,9 +1446,21 @@
             let presentCount = 0;
             let absentCount = 0;
 
+            const hint = document.getElementById('classListSourceHint');
+            if (hint) {
+                const fromUe = Array.isArray(ue.studentList) && ue.studentList.length;
+                hint.textContent = fromUe
+                    ? `${students.length} étudiant(s) enregistrés pour ce cours. Vous pouvez réimporter un fichier pour remplacer la liste.`
+                    : `Aucune liste propre à ce cours. ${students.length ? students.length + ' étudiant(s) issus de la liste du niveau ' + ue.level + '.' : 'Importez un fichier Excel/CSV/PDF/Word pour faire l\'appel.'}`;
+            }
+
             const tbody = document.getElementById('attendanceTableBody');
             if (students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant dans cette promotion.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant. Importez la liste ci-dessus pour faire l'appel.</td></tr>`;
+                document.getElementById('attendanceTotalCount').textContent = '0';
+                document.getElementById('attendancePresentCount').textContent = '0';
+                document.getElementById('attendanceAbsentCount').textContent = '0';
+                document.getElementById('attendanceRate').textContent = '0%';
                 return;
             }
 
@@ -1860,7 +1516,7 @@
             if (!ue) return;
 
             const selectedDate = document.getElementById('attendanceDatePicker').value;
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const attendance = ue.attendance || {};
             attendance[selectedDate] = {};
 
@@ -1901,207 +1557,50 @@
         };
 
         // Tableau de bord Admin
-        window.renderAdminDashboard = function() {
-            const allUes = Object.values(uesData);
-
-            document.getElementById('adminStatTotalUes').textContent = allUes.length;
-            const totalHours = allUes.reduce((sum, u) => sum + (u.hoursTaught || 0), 0);
-            const totalRequired = allUes.length * 45;
-            const avgProgress = totalRequired > 0 ? Math.round((totalHours / totalRequired) * 100) : 0;
-            document.getElementById('adminStatAvgProgress').textContent = `${avgProgress}%`;
-
-            const totalCcs = allUes.reduce((sum, u) => sum + ((u.evaluations || []).length), 0);
-            document.getElementById('adminStatTotalCcs').textContent = totalCcs;
-
-            const absentCount = allUes.filter(u => u.isAbsentToday).length;
-            document.getElementById('adminStatAbsences').textContent = absentCount;
-
-            renderRoomsOccupancy();
-            renderAdminUeTable();
-            renderAdminNotifications();
-        };
-
-        function renderRoomsOccupancy() {
-            const grid = document.getElementById('roomsOccupancyGrid');
-            if (!grid) return;
-
-            const officialRooms = [
-                { name: "Salle R101", capacity: "ICTL1" },
-                { name: "Salle S003", capacity: "ICTL2 (avec S008)" },
-                { name: "Salle S008", capacity: "ICTL2 (avec S003)" },
-                { name: "Salle S107", capacity: "ICTL3" }
-            ];
-
-            grid.innerHTML = officialRooms.map(room => {
-                const roomKey = room.name.replace(/^(Amphi|Salle)\s+/, '');
-                const occupiedBy = Object.values(uesData).find(u => u.room && u.room.includes(roomKey) && isNow(u.schedule));
-                const isOccupied = !!occupiedBy;
-
-                return `
-                    <div class="p-4 rounded-xl border ${isOccupied ? 'bg-amber-50/60 border-amber-300' : 'bg-emerald-50/50 border-emerald-200'} flex flex-col justify-between space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-slate-800 text-xs">${room.name}</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase ${isOccupied ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'}">
-                                ${isOccupied ? 'Occupée' : 'Disponible'}
-                            </span>
-                        </div>
-                        <div>
-                            <p class="text-xs ${isOccupied ? 'text-amber-900 font-bold' : 'text-slate-500'}">
-                                ${isOccupied ? `Cours : ${occupiedBy.code} (${esc(occupiedBy.teacherName) || 'Prof'})` : 'Aucun cours en cours'}
-                            </p>
-                            <span class="text-[10px] text-slate-400">${room.capacity}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        function studentsForUe(ue) {
+            if (!ue) return [];
+            if (Array.isArray(ue.studentList) && ue.studentList.length) return ue.studentList;
+            return classLists[ue.level] || [];
         }
 
-        window.renderAdminUeTable = function() {
-            const tbody = document.getElementById('adminUeTableBody');
-            if (!tbody) return;
-
-            const allUes = Object.values(uesData);
-            allUes.sort((a, b) => a.level - b.level || a.semester - b.semester || a.code.localeCompare(b.code));
-
-            tbody.innerHTML = allUes.map(ue => {
-                const percent = Math.min(100, Math.round(((ue.hoursTaught || 0) / 45) * 100));
-                const ccCount = (ue.evaluations || []).length;
-
-                return `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                        <td class="p-3 font-mono font-black text-sky-900">${esc(ue.code)}</td>
-                        <td class="p-3 text-xs text-slate-500 font-medium">Niv ${ue.level} - S${ue.semester}</td>
-                        <td class="p-3 font-semibold text-slate-800 text-xs max-w-xs truncate">${esc(ue.title) || '<span class="italic text-slate-400">Non renseigné</span>'}</td>
-                        <td class="p-3 text-xs font-bold text-slate-900">${esc(ue.teacherName) || '<span class="text-amber-600">Non attribué</span>'}<div class="text-[10px] font-normal text-slate-400">${esc(assignments[ue.code] || 'aucun email attribué')}</div></td>
-                        <td class="p-3 text-center text-xs font-bold text-slate-700">${ue.hoursTaught || 0}h (${percent}%)</td>
-                        <td class="p-3 text-center text-xs font-bold text-slate-700">${ccCount}</td>
-                        <td class="p-3 text-center">
-                            ${ue.isAbsentToday ? 
-                                `<span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded text-[10px] font-bold">Absent</span>` : 
-                                `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-bold">Actif</span>`}
-                        </td>
-                        <td class="p-3 text-right">
-                            <button onclick="assignTeacherEmail('${esc(ue.code)}')" class="px-2.5 py-1 mr-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition">Attribuer</button>
-                            <button onclick="releaseUe('${esc(ue.code)}')" class="px-2.5 py-1 mr-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold transition">Libérer</button>
-                            <button onclick="requestUeAccess('${esc(ue.code)}')" class="px-3 py-1 bg-sky-900 hover:bg-sky-800 text-white rounded-lg text-xs font-bold transition">
-                                Inspecter
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        };
-
-        window.assignTeacherEmail = async function(code) {
-            const email = prompt(`Email de l'enseignant autorisé pour ${code} (laisser vide pour retirer) :`, assignments[code] || '');
-            if (email === null) return;
-            const e = email.trim().toLowerCase();
-            if (e && !/^\S+@\S+\.\S+$/.test(e)) { showToast("Adresse email invalide.", "error"); return; }
-            try {
-                if (e) await setDoc(doc(db, "ue_assignments", code), { email: e });
-                else await deleteDoc(doc(db, "ue_assignments", code));
-                showToast(e ? `${code} attribuée à ${e}` : `Attribution retirée pour ${code}`, "success");
-            } catch (err) { console.error(err); showToast("Action refusée.", "error"); }
-        };
-
-        window.releaseUe = async function(code) {
-            if (!confirm(`Libérer ${code} ? L'enseignant actuel perdra l'accès (les notes sont conservées).`)) return;
-            await updUe(code, { teacherUid: "", teacherName: "" });
-            showToast(`${code} libérée.`, "info");
-        };
-
-        window.migrateOldData = async function() {
-            if (!isAdminLoggedIn) return;
-            if (!confirm("Déplacer les anciennes notes, appels et historiques vers la zone privée, et supprimer les anciens mots de passe de la zone publique ?")) return;
-            try {
-                const snap = await getDocs(collection(db, "ues"));
-                let moved = 0, cleaned = 0;
-                for (const d of snap.docs) {
-                    const x = d.data();
-                    if (!['password', 'studentGrades', 'attendance', 'history'].some(k => k in x)) continue;
-                    const priv = {};
-                    if (x.studentGrades && Object.keys(x.studentGrades).length) priv.studentGrades = x.studentGrades;
-                    if (x.attendance && Object.keys(x.attendance).length) priv.attendance = x.attendance;
-                    if (Array.isArray(x.history) && x.history.length) priv.history = x.history;
-                    if (Object.keys(priv).length) {
-                        const pref = doc(db, "ues_private", d.id);
-                        const cur = (await getDoc(pref)).data() || {};
-                        for (const k of Object.keys(priv)) {
-                            const v = cur[k];
-                            if (v && (Array.isArray(v) ? v.length : Object.keys(v).length)) delete priv[k]; // ne jamais écraser du récent
-                        }
-                        if (Object.keys(priv).length) { await setDoc(pref, priv, { merge: true }); moved++; }
-                    }
-                    await updateDoc(d.ref, { password: deleteField(), studentGrades: deleteField(), attendance: deleteField(), history: deleteField() });
-                    cleaned++;
-                }
-                showToast(`Migration terminée : ${cleaned} UE nettoyée(s), ${moved} avec données déplacées.`, "success");
-            } catch (e) { console.error(e); showToast("Échec de la migration (voir la console).", "error"); }
-        };
-
-        window.syncTimetable = async function() {
-            if (!isAdminLoggedIn) return;
-            if (!confirm("Mettre à jour salles et horaires de toutes les UE selon l'emploi du temps officiel S1 2026-2027 ?")) return;
-            try {
-                await initializeProgramWithBatch();
-                const batch = writeBatch(db);
-                PROGRAM_STRUCTURE.forEach(i => batch.update(doc(db, "ues", i.code), { room: i.defaultRoom, schedule: i.defaultSchedule }));
-                await batch.commit();
-                showToast("Emploi du temps synchronisé.", "success");
-            } catch (e) { console.error(e); showToast("Échec de la synchronisation.", "error"); }
-        };
-
-        window.filterAdminUeTable = function() {
-            const query = document.getElementById('adminSearchUe').value.toLowerCase();
-            const rows = document.querySelectorAll('#adminUeTableBody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        };
-
-        function renderAdminNotifications() {
-            const seen = notifSeenAt();
-            const unread = adminNotifications.filter(n => (n.timestamp ? n.timestamp.seconds * 1000 : Date.now()) > seen).length;
-            const badge = document.getElementById('adminNotifBadge');
-            if (badge) { badge.classList.toggle('hidden', unread === 0); badge.textContent = unread > 99 ? '99+' : unread; }
-
-            const when = (n) => n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString('fr-FR') : "À l'instant";
-            const item = (n, full) => {
-                const L = LV[levelOf(n)];
-                return `<div class="p-3 ${L.box} rounded-xl flex items-start justify-between text-xs">
-                    <div class="space-y-0.5 min-w-0">
-                        <div class="flex flex-wrap items-center gap-x-2">
-                            <span class="font-bold ${L.txt}">${L.icon} ${L.label}</span>
-                            <span class="font-bold text-slate-900">${esc(n.title)}</span>
-                            <span class="text-[10px] text-slate-400 font-mono">${when(n)}</span>
-                        </div>
-                        <p class="text-slate-600">${esc(n.message)}${n.by ? ` <span class="text-slate-400">— ${esc(n.by)}</span>` : ''}</p>
-                    </div>
-                    ${full ? `<button onclick="deleteSingleNotification('${n.id}')" class="text-rose-500 hover:text-rose-700 ml-3 p-1" title="Supprimer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
-                </div>`;
-            };
-            const empty = `<p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p>`;
-            const list = document.getElementById('adminNotificationsList');
-            if (list) list.innerHTML = adminNotifications.length ? adminNotifications.map(n => item(n, true)).join('') : empty;
-            const feed = document.getElementById('adminLiveFeed');
-            if (feed) feed.innerHTML = adminNotifications.length ? adminNotifications.slice(0, 6).map(n => item(n, false)).join('') : empty;
-            if (window.lucide) lucide.createIcons();
+        function normalizeStudent(mat, name) {
+            const matricule = String(mat || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            const nom = String(name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+            if (matricule.length < 3 || nom.length < 2) return null;
+            if (/^(MATRICULE|NOM|N°|NO|NAME|#)$/.test(matricule) || /^(NOM|PRENOM|PRÉNOM|NAME|ETUDIANT|ÉTUDIANT)$/.test(nom)) return null;
+            return { matricule, name: nom };
         }
 
-        const _openNotifs = window.openAdminNotificationsModal;
-        window.openAdminNotificationsModal = function() { _openNotifs(); markNotifsSeen(); };
+        function studentsFromRows(rows) {
+            if (!rows || !rows.length) return [];
+            const header = (rows[0] || []).map(c => String(c || '').toLowerCase());
+            let matIdx = header.findIndex(c => /matricule|matri|id.?etu|code.?etu/.test(c));
+            let nameIdx = header.findIndex(c => /nom|name|pr[eé]nom|étudiant|etudiant/.test(c));
+            let start = 0;
+            if (matIdx >= 0 || nameIdx >= 0) start = 1;
+            if (matIdx < 0) matIdx = 0;
+            if (nameIdx < 0) nameIdx = matIdx === 0 ? 1 : 0;
+            const seen = new Set();
+            const students = [];
+            for (let i = start; i < rows.length; i++) {
+                const r = rows[i] || [];
+                const nameParts = nameIdx > matIdx
+                    ? r.slice(nameIdx).filter(Boolean)
+                    : r.filter((_, idx) => idx !== matIdx);
+                const s = normalizeStudent(r[matIdx], nameParts.join(' '));
+                if (s && !seen.has(s.matricule)) { seen.add(s.matricule); students.push(s); }
+            }
+            return students;
+        }
 
-        // Import listes
-        window.handleClassListFileUpload = function(event) {
+        window.handleClassListFileUpload = function(event, mode) {
             const file = event.target.files[0];
             if (!file) return;
-
-            const level = parseInt(document.getElementById('importLevelSelect').value);
-            pendingTargetLevel = level;
+            pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
             const fileName = file.name.toLowerCase();
 
-            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+            if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
                 parseExcelFile(file);
             } else if (fileName.endsWith('.pdf')) {
                 parsePdfFile(file);
@@ -2112,6 +1611,7 @@
                 reader.onload = (e) => processRawTextToStudents(e.target.result);
                 reader.readAsText(file);
             }
+            event.target.value = '';
         };
 
         function parseExcelFile(file) {
@@ -2120,19 +1620,7 @@
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-                const students = [];
-                rows.forEach(r => {
-                    if (r && r.length >= 2) {
-                        const mat = String(r[0] || '').trim();
-                        const name = String(r[1] || '').trim();
-                        if (mat && name && mat.length >= 4) {
-                            students.push({ matricule: mat.toUpperCase().replace(/[^A-Z0-9_-]/g, ''), name: name });
-                        }
-                    }
-                });
-                displayImportPreview(students);
+                displayImportPreview(studentsFromRows(XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' })));
             };
             reader.readAsArrayBuffer(file);
         }
@@ -2160,7 +1648,9 @@
                 .catch(err => alert("Erreur lecture Word : " + err.message));
         }
 
-        window.openPasteListModal = function() {
+        window.openPasteListModal = function(mode) {
+            pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
             document.getElementById('pasteListTextarea').value = '';
             document.getElementById('modalPasteList').classList.remove('hidden');
         };
@@ -2176,48 +1666,86 @@
         };
 
         function processRawTextToStudents(rawText) {
-            const lines = rawText.split('\n');
-            const students = [];
-
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (!trimmed) return;
-                const parts = trimmed.split(/[\t,; ]+/);
-                if (parts.length >= 2) {
-                    const mat = parts[0];
-                    const name = parts.slice(1).join(' ');
-                    if (mat.length >= 4 && name.length >= 2) {
-                        students.push({ matricule: mat.toUpperCase().replace(/[^A-Z0-9_-]/g, ''), name: name.toUpperCase() });
-                    }
-                }
-            });
+            const lines = String(rawText || '').split(/\r?\n/).filter(l => l.trim());
+            const rows = lines.map(line => line.trim().split(/[\t,;]+/).map(p => p.trim()).filter(Boolean));
+            let students = studentsFromRows(rows);
+            if (!students.length) {
+                students = [];
+                const seen = new Set();
+                lines.forEach(line => {
+                    const parts = line.trim().split(/[\t,; ]+/);
+                    if (parts.length < 2) return;
+                    const s = normalizeStudent(parts[0], parts.slice(1).join(' '));
+                    if (s && !seen.has(s.matricule)) { seen.add(s.matricule); students.push(s); }
+                });
+            }
             displayImportPreview(students);
         }
 
         function displayImportPreview(students) {
             if (students.length === 0) {
-                alert("Aucun étudiant valide trouvé. Format attendu : MATRICULE Nom et Prénoms.");
+                alert("Aucun étudiant valide trouvé. Format attendu : MATRICULE Nom et Prénoms (Excel : colonnes Matricule et Nom).");
                 return;
             }
             pendingImportedStudents = students;
-            const feedback = document.getElementById('importFeedback');
-            const feedbackText = document.getElementById('importFeedbackText');
-            feedbackText.textContent = `${students.length} étudiant(s) prêt(s) à être enregistré(s) pour le Niveau ${pendingTargetLevel}.`;
-            feedback.classList.remove('hidden');
+            const previewHtml = students.slice(0, 12).map(s => `${esc(s.matricule)} — ${esc(s.name)}`).join('<br>') + (students.length > 12 ? `<br>… +${students.length - 12} autres` : '');
+            const where = pendingImportMode === 'ue'
+                ? `ce cours (${activeUeId || 'UE'})`
+                : `le Niveau ${pendingTargetLevel}`;
+            const adminFb = document.getElementById('importFeedback');
+            const teacherFb = document.getElementById('teacherImportFeedback');
+            if (pendingImportMode === 'ue' && teacherFb) {
+                document.getElementById('teacherImportFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) pour ${where}.`;
+                teacherFb.classList.remove('hidden');
+                if (adminFb) adminFb.classList.add('hidden');
+            } else if (adminFb) {
+                document.getElementById('importFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) à être enregistré(s) pour ${where}.`;
+                const preview = document.getElementById('importPreviewTable');
+                if (preview) preview.innerHTML = previewHtml;
+                adminFb.classList.remove('hidden');
+                if (teacherFb) teacherFb.classList.add('hidden');
+            }
         }
 
         window.confirmSaveImportedStudents = async function() {
             if (pendingImportedStudents.length === 0) return;
+            try {
+                if (pendingImportMode === 'ue') {
+                    if (!activeUeId) { showToast("Ouvrez d'abord un cours pour y importer la liste.", "error"); return; }
+                    await updUe(activeUeId, { studentList: pendingImportedStudents });
+                    showToast(`${pendingImportedStudents.length} étudiant(s) enregistrés pour l'appel de ${activeUeId}.`, "success");
+                    renderAttendanceTable();
+                    renderCcTable();
+                } else {
+                    if (!isAdminLoggedIn) { showToast("Seul l'administrateur peut enregistrer une liste de niveau.", "error"); return; }
+                    await setDoc(doc(db, "system", "class_lists"), { [`level${pendingTargetLevel}`]: pendingImportedStudents }, { merge: true });
+                    showToast(`Liste du Niveau ${pendingTargetLevel} (${pendingImportedStudents.length} étudiants) sauvegardée.`, "success");
+                }
+                document.getElementById('importFeedback')?.classList.add('hidden');
+                document.getElementById('teacherImportFeedback')?.classList.add('hidden');
+                pendingImportedStudents = [];
+            } catch (e) {
+                console.error(e);
+                showToast("Échec de l'enregistrement de la liste.", "error");
+            }
+        };
 
-            const docRef = doc(db, "system", "class_lists");
-            const updateField = {};
-            updateField[`level${pendingTargetLevel}`] = pendingImportedStudents;
-
-            await setDoc(docRef, updateField, { merge: true });
-
-            showToast(`Liste du Niveau ${pendingTargetLevel} (${pendingImportedStudents.length} étudiants) sauvegardée dans Firebase !`, "success");
-            document.getElementById('importFeedback').classList.add('hidden');
-            pendingImportedStudents = [];
+        window.addStudentToUeList = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const s = normalizeStudent(
+                document.getElementById('teacherStudentMatInput')?.value,
+                document.getElementById('teacherStudentNameInput')?.value
+            );
+            if (!s) { showToast("Indiquez un matricule et un nom valides.", "error"); return; }
+            const list = studentsForUe(ue).slice();
+            if (list.some(x => x.matricule === s.matricule)) {
+                list.forEach((x, i) => { if (x.matricule === s.matricule) list[i] = s; });
+            } else list.push(s);
+            await updUe(activeUeId, { studentList: list });
+            document.getElementById('teacherStudentMatInput').value = '';
+            document.getElementById('teacherStudentNameInput').value = '';
+            showToast(`${s.name} ajouté à la liste d'appel.`, "success");
         };
 
         // PDF Exports
@@ -2256,7 +1784,7 @@
             doc.text(`Enseignant titulaire : ${ue.teacherName || 'Non défini'}`, 14, 55);
             doc.text(`Promotion : Niveau ${ue.level} | Semestre ${ue.semester} | Année Académique : ${academicYear()}`, 14, 60);
 
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
             const grades = ue.studentGrades || {};
 
@@ -2307,7 +1835,7 @@
         window.exportCcExcel = function() {
             const ue = uesData[activeUeId];
             if (!ue) return;
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
             const grades = ue.studentGrades || {};
             if (!students.length) { showToast("Aucune liste d'étudiants à exporter.", "warning"); return; }
@@ -2353,7 +1881,7 @@
             doc.text(`Matière : ${esc(ue.code)} (${ue.title || ''}) | Enseignant : ${ue.teacherName || ''}`, 14, 28);
             doc.text(`Date de séance : ${selectedDate} | Salle : ${ue.room || 'UY1'}`, 14, 33);
 
-            const students = classLists[ue.level] || [];
+            const students = studentsForUe(ue);
             const records = (ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {};
 
             const body = students.map((std, i) => {
@@ -2376,6 +1904,7 @@
         };
 
         async function sendNotificationToAdmin(title, message, type = "info") {
+            if (isAdminLoggedIn || !auth.currentUser) return; // seul un enseignant déclenche une notification, et seul l'admin la reçoit
             try {
                 await setDoc(doc(collection(db, "admin_notifications")), {
                     title: title,
@@ -2389,114 +1918,32 @@
             }
         }
 
-        window.deleteSingleNotification = async function(notifId) {
-            try {
-                await deleteDoc(doc(db, "admin_notifications", notifId));
-                showToast("Notification supprimée de Firebase", "info");
-            } catch (e) {
-                showToast("Erreur suppression", "error");
-            }
-        };
-
-        window.deleteAllAdminNotifications = async function() {
-            if (!confirm("Supprimer toutes les notifications de Firebase ?")) return;
-            try {
-                const snapshot = await getDocs(collection(db, "admin_notifications"));
-                const deletes = snapshot.docs.map(d => deleteDoc(d.ref));
-                await Promise.all(deletes);
-                showToast("Toutes les notifications ont été supprimées", "success");
-            } catch (e) {
-                showToast("Erreur lors de la purge", "error");
-            }
-        };
-
-        function updateGlobalAbsenceAlert() {
-            const absentUes = Object.values(uesData).filter(u => u.isAbsentToday);
-            const alertBox = document.getElementById('globalAbsenceAlert');
-            const alertText = document.getElementById('globalAbsenceText');
-            if (!alertBox || !alertText) return;
-
-            if (absentUes.length > 0) {
-                const names = absentUes.map(u => `${u.code} (${u.teacherName || 'Prof non nommé'})`).join(', ');
-                alertText.textContent = `Avis d'absence d'enseignant aujourd'hui : ${names}`;
-                alertBox.classList.remove('hidden');
-            } else {
-                alertBox.classList.add('hidden');
-            }
-        }
-
         // ==========================================
-        // SYNCHRONISATION GROUPÉE FIREBASE (BATCH)
-        // ==========================================
-        let isInitializing = false;
-
-        async function initializeProgramWithBatch() {
-            if (isInitializing) return;
-            isInitializing = true;
-            try {
-                const batch = writeBatch(db);
-                const existing = new Set((await getDocs(collection(db, "ues"))).docs.map(d => d.id));
-                PROGRAM_STRUCTURE.filter(i => !existing.has(i.code)).forEach(item => {
-                    const docRef = doc(db, "ues", item.code);
-                    batch.set(docRef, {
-                        code: item.code,
-                        level: item.level,
-                        semester: item.semester,
-                        title: "",
-                        teacherName: "",
-                        teacherUid: "",
-                        hoursTaught: 0,
-                        totalRequiredHours: 45,
-                        room: item.defaultRoom,
-                        schedule: item.defaultSchedule,
-                        isAbsentToday: false,
-                        evaluations: [],
-                        
-                    }, { merge: true });
-                });
-                await batch.commit();
-                console.log("⚡ Synchronisation groupée réussie.");
-            } catch (err) {
-                console.error("Erreur batch:", err);
-            } finally {
-                isInitializing = false;
-            }
-        }
-
-        // ==========================================
-        // ÉCOUTEURS TEMPS RÉEL (FIRESTORE LISTENERS)
+        // ÉCOUTEURS TEMPS RÉEL (FIRESTORE LISTENERS) : portail et enseignants
         // ==========================================
         try {
-            const uesColRef = collection(db, "ues");
-            onSnapshot(uesColRef, (snapshot) => {
+            onSnapshot(collection(db, "ues"), (snapshot) => {
                 setConn(!snapshot.metadata.fromCache && navigator.onLine);
-                if (snapshot.empty && snapshot.metadata.fromCache) {
-                    return; // hors-ligne : on n'écrase surtout rien
-                } else if (snapshot.empty) {
-                    if (isAdminLoggedIn) initializeProgramWithBatch();
-                } else {
+                if (snapshot.empty) return;
                     snapshot.forEach((docSnap) => {
                         if (!PROGRAM_STRUCTURE.some(i => i.code === docSnap.id)) return; // anciennes UE hors programme
                         const data = docSnap.data();
                         uesData[docSnap.id] = { ...uesData[docSnap.id], ...data };
+                        uesData[docSnap.id].room = ROOM_BY_LEVEL[uesData[docSnap.id].level] || uesData[docSnap.id].room;
                         uesData[docSnap.id].isAbsentToday = !!data.isAbsentToday && data.absenceDate === todayStr();
                     });
-                    renderUesGrid();
-                    if (isAdminLoggedIn) renderAdminDashboard();
-                    if (activeUeId && uesData[activeUeId] && snapshot.docChanges().some(c => c.doc.id === activeUeId)) renderKeepingFocus();
-                    updateGlobalAbsenceAlert();
-                    if (isAdminLoggedIn && !snapshot.metadata.fromCache && PROGRAM_STRUCTURE.some(i => !snapshot.docs.find(d => d.id === i.code))) initializeProgramWithBatch();
-                }
+                renderUesGrid();
+                if (activeUeId && uesData[activeUeId] && snapshot.docChanges().some(c => c.doc.id === activeUeId)) renderKeepingFocus();
             }, (error) => {
                 console.error("Firestore Error:", error);
                 setConn(false);
                 showToast("Impossible de joindre la base de données.", "error");
             });
 
-            window.attachPrivateListeners = function(signed, admin) {
+            window.attachPrivateListeners = function(signed) {
                 listUnsubs.forEach(u => u());
                 listUnsubs = [];
-                if (!signed) { classLists = { 1: [], 2: [], 3: [] }; adminNotifications = []; return; }
+                if (!signed) { classLists = { 1: [], 2: [], 3: [] }; return; }
                 listUnsubs.push(onSnapshot(doc(db, "system", "class_lists"), (docSnap) => {
                     if (docSnap.exists()) {
                         const data = docSnap.data();
@@ -2506,55 +1953,26 @@
                     }
                     if (activeUeId && uesData[activeUeId]) renderKeepingFocus();
                 }, (e) => console.error(e)));
-                if (admin) {
-                    listUnsubs.push(onSnapshot(collection(db, "ue_assignments"), (snap) => {
-                        assignments = {};
-                        snap.forEach(d => assignments[d.id] = d.data().email || '');
-                        renderAdminUeTable();
-                    }, (e) => console.error(e)));
-                    let first = true;
-                    listUnsubs.push(onSnapshot(collection(db, "admin_notifications"), (snapshot) => {
-                        if (!first) snapshot.docChanges().forEach(c => { if (c.type === 'added' && !c.doc.metadata.hasPendingWrites) liveNotify(c.doc.data()); });
-                        first = false;
-                        adminNotifications = [];
-                        snapshot.forEach((d) => adminNotifications.push({ id: d.id, ...d.data() }));
-                        adminNotifications.sort((a, b) => (b.timestamp?.seconds || 9e9) - (a.timestamp?.seconds || 9e9));
-                        renderAdminNotifications();
-                    }, (e) => console.error(e)));
-                }
             };
 
+            let firstAuthEvent = true;
             onAuthStateChanged(auth, async (user) => {
+                // Toute ancienne session restaurée par le navigateur est fermée : connexion explicite obligatoire.
+                if (firstAuthEvent) { firstAuthEvent = false; if (user) { await signOut(auth); return; } }
                 currentUser = user;
                 resetIdle();
-                let admin = false;
-                if (user) {
-                    try { admin = (await getDoc(doc(db, "admins", user.uid))).exists(); } catch (e) { console.error(e); }
-                }
-                isAdminLoggedIn = admin;
-                applyAdminUI(admin);
-                attachPrivateListeners(!!user, admin);
-                if (admin) initializeProgramWithBatch();
+                attachPrivateListeners(!!user);
             });
         } catch (e) {
             console.error("Erreur d'initialisation Firestore:", e);
         }
 
-        // ==========================================
-        // DÉMARRAGE IMMÉDIAT AU CHARGEMENT DE LA PAGE
-        // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             renderUesGrid();
             if (window.lucide) lucide.createIcons();
-            const now = new Date();
-            const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-            const liveTimeEl = document.getElementById('currentLiveTime');
-            if (liveTimeEl) {
-                liveTimeEl.textContent = `${days[now.getDay()]} • ${String(now.getHours()).padStart(2, '0')}h${String(now.getMinutes()).padStart(2, '0')}`;
-            }
         });
     </script>
-    <!-- Assistant IA -->
+<!-- Assistant IA -->
     <button id="botFab" onclick="toggleBot()" aria-label="Ouvrir l'assistant" class="no-print fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full text-white shadow-xl flex items-center justify-center hover:scale-105 transition" style="background:var(--ink2)">
         <i data-lucide="bot" class="w-7 h-7"></i>
     </button>
