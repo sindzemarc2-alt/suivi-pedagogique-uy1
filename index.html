@@ -46,6 +46,50 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         @media print { .no-print { display: none !important; } }
     </style>
+    <!-- Thème : polices, couleurs et mouvement -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+    <style>
+        :root{--ink:#0b2545;--ink2:#13315c;--signal:#ffd166}
+        body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif}
+        h1,h2,h3,.font-display{font-family:'Bricolage Grotesque','Figtree',sans-serif;letter-spacing:-.01em}
+        .hero{background:radial-gradient(120% 150% at 0% 0%,var(--ink2) 0%,var(--ink) 62%);box-shadow:0 24px 50px -28px rgba(11,37,69,.75)}
+        .board-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1;color:var(--signal);font-variant-numeric:tabular-nums}
+        .board dt{margin-top:.4rem;font-size:.72rem;line-height:1.25;color:rgba(224,239,254,.78)}
+        #uesGrid>div{border-radius:1.25rem;transition:transform .18s ease,box-shadow .18s ease,border-color .18s}
+        #uesGrid>div:hover{transform:translateY(-3px);box-shadow:0 16px 30px -20px rgba(11,37,69,.55)}
+        .bar-fill{width:var(--w)}
+        @keyframes grow{from{width:0}}
+        html.intro .bar-fill,html.intro #statBar{animation:grow .9s cubic-bezier(.2,.7,.2,1) both}
+        @keyframes viewIn{from{opacity:0;transform:translateY(6px)}}
+        #view-portal,#view-teacher,#view-admin{animation:viewIn .22s ease-out}
+        :focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+        @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+        .bot-msg{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;line-height:1.45}
+        .bot-dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;animation:botblink 1s infinite both}
+        .bot-dots i:nth-child(2){animation-delay:.15s}.bot-dots i:nth-child(3){animation-delay:.3s}
+        @keyframes botblink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+        /* Mode sombre */
+        html.dark{color-scheme:dark}
+        html.dark,html.dark body{background:#0a1222!important}
+        .dark .bg-white{background:#111c33!important}
+        .dark .bg-slate-50,.dark .bg-slate-50\/50{background:#0f1a30!important}
+        .dark .bg-slate-100{background:#16233f!important}
+        .dark .bg-slate-200{background:#1d2c4b!important}
+        .dark .text-slate-900,.dark .text-slate-800{color:#e8eef8!important}
+        .dark .text-slate-700,.dark .text-slate-600{color:#b9c5da!important}
+        .dark .text-slate-500,.dark .text-slate-400{color:#8c9bb5!important}
+        .dark .border-slate-100,.dark .border-slate-200,.dark .border-slate-300{border-color:#243453!important}
+        .dark .divide-slate-200>*+*{border-color:#243453!important}
+        .dark .bg-sky-100{background:#12304d!important}
+        .dark .text-sky-900,.dark .text-sky-800{color:#bde0fe!important}
+        .dark .bg-amber-50{background:#3a2a10!important}
+        .dark .bg-rose-50{background:#3b1620!important}
+        .dark .bg-emerald-50{background:#0f2f2a!important}
+        .dark input,.dark select,.dark textarea{background:#0f1a30!important;color:#e8eef8!important;border-color:#243453!important}
+    </style>
 </head>
 <body class="h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-sky-200">
 
@@ -84,9 +128,10 @@
 
                 <!-- Navigation droite -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="toggleTheme()" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Mode clair / sombre" aria-label="Changer de thème"><i data-lucide="moon" class="w-5 h-5"></i></button>
                     <button id="btnAdminNotifBell" onclick="openAdminNotificationsModal()" class="hidden relative p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Notifications Admin">
                         <i data-lucide="bell" class="w-5 h-5"></i>
-                        <span id="adminNotifBadge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-slate-900"></span>
+                        <span id="adminNotifBadge" class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full ring-2 ring-slate-900 items-center justify-center"></span>
                     </button>
 
                     <span id="adminModeIndicator" class="hidden items-center px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold">
@@ -109,19 +154,25 @@
 
         <!-- VUE 1 : PORTAIL GÉNÉRAL (NIVEAUX 1, 2, 3) -->
         <div id="view-portal" class="space-y-6">
-            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Plateforme de Suivi des Enseignements</h1>
-                    <p class="text-slate-600 mt-1 max-w-2xl text-sm sm:text-base">
-                        Vérification de la progression pédagogique, déclaration des heures, gestion de l'appel et calcul automatisé des notes de CC sur 20.
-                    </p>
+            <section class="hero rounded-3xl p-6 sm:p-8 text-white">
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div class="max-w-xl">
+                        <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight">Suivi des enseignements</h1>
+                        <p class="mt-2 text-sky-100/80 text-sm sm:text-base">Heures dispensées, appel et notes de CC : chaque enseignant met à jour sa matière, tout s'affiche ici en direct.</p>
+                        <div class="mt-4">
+                            <span id="connBadge" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
+                                <span id="connDot" class="w-2 h-2 rounded-full bg-slate-400 mr-1.5"></span><span id="connText">Connexion…</span>
+                            </span>
+                        </div>
+                    </div>
+                    <dl class="board grid grid-cols-3 gap-4 sm:gap-8 text-center">
+                        <div><dd id="statUe" class="board-num">0</dd><dt>matières au programme</dt></div>
+                        <div><dd id="statHours" class="board-num">0%</dd><dt>des heures effectuées</dt></div>
+                        <div><dd id="statAbsent" class="board-num">0</dd><dt>absence(s) aujourd'hui</dt></div>
+                    </dl>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <span id="connBadge" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
-                        <span id="connDot" class="w-2 h-2 rounded-full bg-slate-400 mr-1.5"></span><span id="connText">Connexion…</span>
-                    </span>
-                </div>
-            </div>
+                <div class="mt-6 h-1.5 rounded-full bg-white/15 overflow-hidden"><div id="statBar" class="h-full rounded-full" style="width:0%;background:var(--signal)"></div></div>
+            </section>
 
             <!-- Filtres Niveau et Semestre -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -395,6 +446,15 @@
                         <span>Déconnexion Sécurisée</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- Activité en direct -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>Activité en direct</h3>
+                    <button onclick="openAdminNotificationsModal()" class="text-xs text-sky-700 hover:underline font-semibold">Tout voir</button>
+                </div>
+                <div id="adminLiveFeed" class="space-y-1.5"><p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p></div>
             </div>
 
             <!-- Statistiques globales -->
@@ -761,7 +821,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         // Configuration Firebase
         const firebaseConfig = {
@@ -862,6 +922,205 @@
         };
         window.addEventListener('online', () => { setConn(true); showToast("Connexion rétablie, envoi des modifications…", "success"); });
         window.addEventListener('offline', () => { setConn(false); showToast("Vous êtes hors-ligne. Les modifications seront envoyées au retour d'internet.", "warning"); });
+        // ===== ASSISTANT IA =====
+        let botHistory = [];
+        function botAdd(who, text) {
+            const box = document.getElementById('botMessages');
+            const row = document.createElement('div');
+            const bubble = document.createElement('div');
+            bubble.style.whiteSpace = 'pre-wrap';
+            bubble.textContent = text;
+            if (who === 'user') {
+                row.className = 'self-end max-w-[85%]';
+                bubble.className = 'bg-sky-900 text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm';
+            } else {
+                row.className = 'self-start flex items-start gap-2 max-w-[92%]';
+                const av = document.createElement('span');
+                av.className = 'w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-sm';
+                av.style.background = 'var(--ink2)';
+                av.textContent = '🤖';
+                bubble.className = 'bot-msg bg-slate-100 text-slate-800 px-3 py-2 rounded-2xl rounded-tl-sm border border-slate-200';
+                row.appendChild(av);
+            }
+            row.appendChild(bubble);
+            box.appendChild(row);
+            box.scrollTop = box.scrollHeight;
+            return bubble;
+        }
+        // BOT-ENGINE-START
+        const norm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        const slotsOf = (u) => String(u.schedule || '').split(' / ').map(p => {
+            const m = /(\S+)\s+(\d{1,2}h\d{0,2}-\d{1,2}h\d{0,2})\s*(?:\((G\d)\))?/.exec(p);
+            return m ? { day: norm(m[1]), time: m[2], g: m[3] || '' } : null;
+        }).filter(Boolean);
+        const ueFull = (u) => [
+            `${u.code} : ${u.title || 'intitulé non renseigné'}`,
+            `Enseignant : ${u.teacherName || 'non attribué'}`,
+            `Salle : ${u.room || '?'}`,
+            `Horaires : ${u.schedule || '?'}`,
+            `Heures : ${u.hoursTaught || 0}/${u.totalRequiredHours || 45}`,
+            ...(u.isAbsentToday ? ["Statut : ABSENT aujourd'hui"] : [])
+        ].join('\n');
+        const HELP = "Requête non comprise.\nEssayez :\n- « ICT205 » ou « salle de ICT101 »\n- « cours demain » ou « cours lundi »\n- « cours maintenant »\n- « absences »\n- « matières du niveau 2 »\n- « salle R101 »";
+
+        function botAnswer(q) {
+            const t = norm(q);
+            const all = Object.values(uesData);
+            const today = DAYS[new Date().getDay()], tomorrow = DAYS[(new Date().getDay() + 1) % 7];
+            const lv = /\b(?:niveau|ictl|l)\s?([123])\b/.exec(t);
+            const sem = /\b(?:semestre|s)\s?([12])\b/.exec(t);
+            const level = lv ? +lv[1] : null, semester = sem ? +sem[1] : currentSemestre;
+
+            if (/\b(bonjour|salut|bonsoir|hello|coucou)\b/.test(t)) return "Bip bip ! Bonjour.\nDemandez-moi un cours (ex. ICT205), une salle, un enseignant ou « cours demain ».";
+            if (/\b(aide|help)\b|que sais|que peux/.test(t)) return HELP;
+            if (/absen|indisponible/.test(t)) {
+                const a = all.filter(u => u.isAbsentToday);
+                return a.length ? "Absences du jour :\n" + a.map(u => `- ${u.code} : ${u.teacherName || 'enseignant'}`).join('\n') : "Calcul terminé. Aucune absence déclarée aujourd'hui.";
+            }
+            if (/maintenant|en ce moment|en cours/.test(t)) {
+                const c = all.filter(u => isNow(u.schedule));
+                return c.length ? "Cours en cours :\n" + c.map(u => `- ${u.code} (${u.title || '?'}), salle ${u.room}`).join('\n') : "Aucun cours en cours à cette heure.";
+            }
+            const code = /\b(ict|eng|fra)\s?(\d{3})\b/.exec(t);
+            if (code) {
+                const u = all.find(x => norm(x.code) === code[1] + code[2]);
+                if (!u) return `Code ${code[1].toUpperCase()}${code[2]} introuvable dans la base.`;
+                if (/\bsalle|ou est|ou a lieu|ou se/.test(t)) return `${u.code} : salle ${u.room || '?'}.`;
+                if (/\bqui\b|prof|enseignant/.test(t)) return `${u.code} : ${u.teacherName || 'enseignant non attribué'}.`;
+                if (/quand|horaire|heure|jour/.test(t) && !/progress|effectu/.test(t)) return `${u.code} : ${u.schedule || 'horaire non fixé'}.`;
+                if (/progress|avance|effectu|combien/.test(t)) return `${u.code} : ${u.hoursTaught || 0}h effectuées sur ${u.totalRequiredHours || 45}h.`;
+                return ueFull(u);
+            }
+            const room = /\b(r101|s\d{3})\b/.exec(t);
+            if (room) {
+                const r = all.filter(u => norm(u.room).includes(room[1]) && (!sem || u.semester === semester));
+                return r.length ? `Matières en salle ${room[1].toUpperCase()} :\n` + r.map(u => `- ${u.code} : ${u.title || '?'}`).join('\n') : `Aucune matière trouvée pour la salle ${room[1].toUpperCase()}.`;
+            }
+            const day = /aujourd/.test(t) ? today : /demain/.test(t) ? tomorrow : DAYS.find(d => t.includes(d));
+            if (day) {
+                const rows = [];
+                all.filter(u => u.semester === semester && (!level || u.level === level)).forEach(u => slotsOf(u).filter(s => s.day === day).forEach(s => rows.push({ s, u })));
+                rows.sort((a, b) => parseInt(a.s.time) - parseInt(b.s.time));
+                return rows.length ? `Cours du ${day} (semestre ${semester}) :\n` + rows.map(r => `- ${r.s.time} : ${r.u.code}${r.s.g ? ' ' + r.s.g : ''}, salle ${r.u.room}`).join('\n') : `Aucun cours programmé le ${day}.`;
+            }
+            if (level && /matiere|cours|ue|liste|programme/.test(t)) {
+                const r = all.filter(u => u.level === level && u.semester === semester);
+                return `Niveau ${level}, semestre ${semester} :\n` + r.map(u => `- ${u.code} : ${u.title || '?'}`).join('\n');
+            }
+            const tm = all.filter(u => u.teacherName && norm(u.teacherName).split(/\W+/).filter(w => w.length > 3).some(w => t.includes(w)));
+            if (tm.length) return "Matières trouvées :\n" + tm.map(u => `- ${u.code} (${u.teacherName}) : ${u.schedule || '?'}, salle ${u.room}`).join('\n');
+            const byTitle = all.find(u => u.title && norm(u.title).split(/\W+/).filter(w => w.length > 4).some(w => t.includes(w)));
+            if (byTitle) return ueFull(byTitle);
+            return HELP;
+        }
+        // BOT-ENGINE-END
+
+        window.toggleBot = function() {
+            const panel = document.getElementById('botPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                if (!document.getElementById('botMessages').children.length)
+                    botAdd('bot', "Bip bip ! Je suis UY1-BOT.\nPosez-moi vos questions sur les enseignants, salles, horaires et absences.\nJe n'ai accès à aucune note.");
+                document.getElementById('botInput').focus();
+            }
+        };
+        window.sendBot = async function(preset) {
+            const input = document.getElementById('botInput');
+            const q = (preset || input.value).trim();
+            if (!q) return;
+            input.value = '';
+            botAdd('user', q);
+            const wait = botAdd('bot', '');
+            wait.innerHTML = '<span class="bot-dots"><i></i><i></i><i></i></span>';
+            await new Promise(r => setTimeout(r, 450));
+            wait.textContent = botAnswer(q);
+        };
+
+        // ===== DESIGN : chiffres animés, thème =====
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function countTo(el, to, suffix = '') {
+            if (!el) return;
+            const from = +el.dataset.v || 0;
+            el.dataset.v = to;
+            if (reduceMotion || from === to) { el.textContent = to + suffix; return; }
+            const t0 = performance.now();
+            const step = (t) => {
+                const k = Math.min(1, (t - t0) / 800);
+                el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))) + suffix;
+                if (k < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
+        window.updatePortalStats = function() {
+            const all = Object.values(uesData);
+            const need = all.reduce((a, u) => a + (u.totalRequiredHours || 45), 0);
+            const done = all.reduce((a, u) => a + Math.min(u.hoursTaught || 0, u.totalRequiredHours || 45), 0);
+            const pct = need ? Math.round((done / need) * 100) : 0;
+            countTo(document.getElementById('statUe'), all.length);
+            countTo(document.getElementById('statHours'), pct, '%');
+            countTo(document.getElementById('statAbsent'), all.filter(u => u.isAbsentToday).length);
+            const bar = document.getElementById('statBar');
+            if (bar) bar.style.width = pct + '%';
+        };
+        window.toggleTheme = function() {
+            const dark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+        };
+        document.documentElement.classList.add('intro');
+        setTimeout(() => document.documentElement.classList.remove('intro'), 1600);
+
+        // ===== NOTIFICATIONS ADMIN =====
+        const LV = {
+            urgent:    { label: 'Urgent',    box: 'border-l-4 border-l-rose-500 bg-rose-50',   txt: 'text-rose-700',  icon: '🚨' },
+            important: { label: 'Important', box: 'border-l-4 border-l-amber-500 bg-amber-50', txt: 'text-amber-700', icon: '⚠️' },
+            info:      { label: 'Info',      box: 'border-l-4 border-l-sky-500 bg-slate-50',   txt: 'text-sky-700',   icon: 'ℹ️' }
+        };
+        const levelOf = (n) => ({ absence: 'urgent', urgent: 'urgent', presence: 'important', important: 'important' }[n.type] || 'info');
+        const notifThrottle = {};
+        const notifSeenAt = () => { try { return +localStorage.getItem('adminNotifSeen') || 0; } catch (e) { return 0; } };
+        window.markNotifsSeen = function() { try { localStorage.setItem('adminNotifSeen', String(Date.now())); } catch (e) {} renderAdminNotifications(); };
+        function beep() {
+            try {
+                const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.05;
+                o.start(); o.stop(c.currentTime + 0.25);
+            } catch (e) {}
+        }
+        function liveNotify(n) {
+            const lv = levelOf(n);
+            showToast(`${LV[lv].icon} ${n.title} : ${n.message}`, lv === 'urgent' ? 'error' : lv === 'important' ? 'warning' : 'info');
+            if (lv === 'urgent') beep();
+        }
+        function notifyFromChange(code, data) {
+            if (isAdminLoggedIn) return; // l'admin n'est pas notifié de ses propres actions
+            const ue = uesData[code] || {};
+            const who = ue.teacherName || 'Un enseignant';
+            const keys = Object.keys(data);
+            const once = (k, ms) => { const now = Date.now(); if (notifThrottle[k] && now - notifThrottle[k] < ms) return false; notifThrottle[k] = now; return true; };
+            if (keys.some(k => k.startsWith('studentGrades')) && once('g' + code, 120000))
+                sendNotificationToAdmin(`Notes modifiées : ${code}`, `${who} a saisi ou modifié des notes de CC.`, 'info');
+            if (keys.some(k => k === 'attendance' || k.startsWith('attendance.')) && once('a' + code, 120000))
+                sendNotificationToAdmin(`Fiche d'appel modifiée : ${code}`, `${who} a mis à jour la présence des étudiants.`, 'info');
+            if (keys.includes('evaluations'))
+                sendNotificationToAdmin(`Évaluations CC modifiées : ${code}`, `${who} a ajouté, modifié ou supprimé une évaluation.`, 'important');
+            if (Array.isArray(data.history) && data.history.length === 0)
+                sendNotificationToAdmin(`Historique effacé : ${code}`, `${who} a vidé l'historique des activités de cette UE.`, 'important');
+        }
+
+        // ===== SESSION : déconnexion après 15 min d'inactivité =====
+        let idleTimer = null;
+        function resetIdle() {
+            clearTimeout(idleTimer);
+            if (!currentUser) return;
+            idleTimer = setTimeout(async () => {
+                showToast("Session fermée par sécurité (15 min d'inactivité).", "warning");
+                if (isAdminLoggedIn) await exitAdminView(); else exitAndLockTeacherWorkspace();
+                if (auth.currentUser) await signOut(auth);
+            }, 15 * 60 * 1000);
+        }
+        ['click', 'keydown', 'touchstart', 'mousemove'].forEach(ev => window.addEventListener(ev, resetIdle, { passive: true }));
+
         let currentUser = null, privUnsub = null, listUnsubs = [], assignments = {};
         const PRIV = ['studentGrades', 'attendance', 'history'];
         async function updUe(code, data) {
@@ -873,6 +1132,7 @@
                 if (Object.keys(pub).length) jobs.push(updateDoc(doc(db, "ues", code), pub));
                 if (Object.keys(priv).length) jobs.push(updateDoc(doc(db, "ues_private", code), priv));
                 await Promise.all(jobs);
+                notifyFromChange(code, data);
             } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); }
         }
         const authMsg = (e) => ({
@@ -976,7 +1236,7 @@
                                 <span class="font-bold text-slate-800">${percent}%</span>
                             </div>
                             <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-sky-600 h-1.5 rounded-full" style="width: ${percent}%"></div>
+                                <div class="bar-fill h-1.5 rounded-full ${percent >= 100 ? 'bg-emerald-500' : percent >= 50 ? 'bg-sky-600' : 'bg-amber-500'}" style="--w:${percent}%"></div>
                             </div>
                             <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
                                 <span>${ccCount} contrôle(s) continu(s)</span>
@@ -990,6 +1250,7 @@
                 `;
             }).join('');
 
+            updatePortalStats();
             if (window.lucide) lucide.createIcons();
         };
 
@@ -1138,14 +1399,27 @@
             if (claiming && !tName) return fail("Veuillez renseigner votre nom complet d'enseignant.");
             try {
                 if (!currentUser || currentUser.email !== email) {
-                    if (create) await createUserWithEmailAndPassword(auth, email, pass);
-                    else await signInWithEmailAndPassword(auth, email, pass);
+                    if (create) {
+                        const created = await createUserWithEmailAndPassword(auth, email, pass);
+                        await sendEmailVerification(created.user);
+                        await signOut(auth);
+                        document.getElementById('authCreateAccount').checked = false;
+                        return fail(`Compte créé. Un email de vérification a été envoyé à ${email}. Cliquez sur le lien reçu (regardez aussi les spams), puis reconnectez-vous ici.`);
+                    }
+                    const cred = await signInWithEmailAndPassword(auth, email, pass);
+                    await cred.user.reload();
+                    if (!cred.user.emailVerified) {
+                        await sendEmailVerification(cred.user);
+                        await signOut(auth);
+                        return fail(`Email non vérifié. Un nouveau lien vient d'être envoyé à ${email}. Cliquez dessus, puis réessayez.`);
+                    }
                 }
             } catch (e) { return fail(authMsg(e)); }
             const uid = auth.currentUser.uid;
             if (claiming) {
                 try {
                     await updateDoc(doc(db, "ues", ueCode), { teacherUid: uid, teacherName: tName, title: tTitle || ue.title || "Cours magistral" });
+                    sendNotificationToAdmin(`UE prise en charge : ${ueCode}`, `${tName} (${email}) a pris en charge cette UE.`, "important");
                 } catch (e) { return fail("Cette UE n'est pas attribuée à votre email. Contactez l'administrateur."); }
             } else if (ue.teacherUid !== uid) {
                 return fail("Cette UE est rattachée à un autre compte enseignant.");
@@ -1312,8 +1586,8 @@
             });
 
             sendNotificationToAdmin(
-                `Séance Validée : ${esc(ue.code)}`,
-                `L'enseignant (${esc(ue.teacherName)}) a validé 3h de cours. Progression : ${newHours}h / 45h.`,
+                `Séance Validée : ${ue.code}`,
+                `L'enseignant (${ue.teacherName}) a validé 3h de cours. Progression : ${newHours}h / 45h.`,
                 "presence"
             );
 
@@ -1337,12 +1611,13 @@
 
             if (newState) {
                 sendNotificationToAdmin(
-                    `Alerte Absence : ${esc(ue.code)}`,
-                    `L'enseignant (${esc(ue.teacherName)}) a signalé qu'il ne sera pas disponible aujourd'hui.`,
+                    `Alerte Absence : ${ue.code}`,
+                    `L'enseignant (${ue.teacherName}) a signalé qu'il ne sera pas disponible aujourd'hui.`,
                     "absence"
                 );
                 showToast("Votre indisponibilité a été signalée sur la plateforme.", "warning");
             } else {
+                sendNotificationToAdmin(`Reprise des cours : ${ue.code}`, `${ue.teacherName || 'L\'enseignant'} a annulé son avis d'absence.`, "important");
                 showToast("Avis d'absence annulé.", "info");
             }
         };
@@ -1786,31 +2061,36 @@
         };
 
         function renderAdminNotifications() {
-            const container = document.getElementById('adminNotificationsList');
-            if (!container) return;
+            const seen = notifSeenAt();
+            const unread = adminNotifications.filter(n => (n.timestamp ? n.timestamp.seconds * 1000 : Date.now()) > seen).length;
+            const badge = document.getElementById('adminNotifBadge');
+            if (badge) { badge.classList.toggle('hidden', unread === 0); badge.textContent = unread > 99 ? '99+' : unread; }
 
-            if (adminNotifications.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune notification enregistrée dans Firebase.</p>`;
-                return;
-            }
-
-            container.innerHTML = adminNotifications.map(n => `
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between text-xs">
-                    <div class="space-y-0.5">
-                        <div class="flex items-center space-x-2">
+            const when = (n) => n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString('fr-FR') : "À l'instant";
+            const item = (n, full) => {
+                const L = LV[levelOf(n)];
+                return `<div class="p-3 ${L.box} rounded-xl flex items-start justify-between text-xs">
+                    <div class="space-y-0.5 min-w-0">
+                        <div class="flex flex-wrap items-center gap-x-2">
+                            <span class="font-bold ${L.txt}">${L.icon} ${L.label}</span>
                             <span class="font-bold text-slate-900">${esc(n.title)}</span>
-                            <span class="text-[10px] text-slate-400 font-mono">${n.timestamp ? new Date(n.timestamp.seconds * 1000).toLocaleString('fr-FR') : 'À l\'instant'}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${when(n)}</span>
                         </div>
-                        <p class="text-slate-600">${esc(n.message)}</p>
+                        <p class="text-slate-600">${esc(n.message)}${n.by ? ` <span class="text-slate-400">— ${esc(n.by)}</span>` : ''}</p>
                     </div>
-                    <button onclick="deleteSingleNotification('${n.id}')" class="text-rose-500 hover:text-rose-700 ml-3 p-1" title="Supprimer de Firebase">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `).join('');
-
+                    ${full ? `<button onclick="deleteSingleNotification('${n.id}')" class="text-rose-500 hover:text-rose-700 ml-3 p-1" title="Supprimer"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                </div>`;
+            };
+            const empty = `<p class="text-xs text-slate-400 italic">Aucune activité pour le moment.</p>`;
+            const list = document.getElementById('adminNotificationsList');
+            if (list) list.innerHTML = adminNotifications.length ? adminNotifications.map(n => item(n, true)).join('') : empty;
+            const feed = document.getElementById('adminLiveFeed');
+            if (feed) feed.innerHTML = adminNotifications.length ? adminNotifications.slice(0, 6).map(n => item(n, false)).join('') : empty;
             if (window.lucide) lucide.createIcons();
         }
+
+        const _openNotifs = window.openAdminNotificationsModal;
+        window.openAdminNotificationsModal = function() { _openNotifs(); markNotifsSeen(); };
 
         // Import listes
         window.handleClassListFileUpload = function(event) {
@@ -2101,6 +2381,7 @@
                     title: title,
                     message: message,
                     type: type,
+                    by: auth.currentUser?.email || "",
                     timestamp: serverTimestamp()
                 });
             } catch (e) {
@@ -2231,12 +2512,13 @@
                         snap.forEach(d => assignments[d.id] = d.data().email || '');
                         renderAdminUeTable();
                     }, (e) => console.error(e)));
+                    let first = true;
                     listUnsubs.push(onSnapshot(collection(db, "admin_notifications"), (snapshot) => {
+                        if (!first) snapshot.docChanges().forEach(c => { if (c.type === 'added' && !c.doc.metadata.hasPendingWrites) liveNotify(c.doc.data()); });
+                        first = false;
                         adminNotifications = [];
                         snapshot.forEach((d) => adminNotifications.push({ id: d.id, ...d.data() }));
-                        adminNotifications.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-                        const badge = document.getElementById('adminNotifBadge');
-                        if (badge) badge.classList.toggle('hidden', adminNotifications.length === 0);
+                        adminNotifications.sort((a, b) => (b.timestamp?.seconds || 9e9) - (a.timestamp?.seconds || 9e9));
                         renderAdminNotifications();
                     }, (e) => console.error(e)));
                 }
@@ -2244,6 +2526,7 @@
 
             onAuthStateChanged(auth, async (user) => {
                 currentUser = user;
+                resetIdle();
                 let admin = false;
                 if (user) {
                     try { admin = (await getDoc(doc(db, "admins", user.uid))).exists(); } catch (e) { console.error(e); }
@@ -2271,5 +2554,29 @@
             }
         });
     </script>
+    <!-- Assistant IA -->
+    <button id="botFab" onclick="toggleBot()" aria-label="Ouvrir l'assistant" class="no-print fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full text-white shadow-xl flex items-center justify-center hover:scale-105 transition" style="background:var(--ink2)">
+        <i data-lucide="bot" class="w-7 h-7"></i>
+    </button>
+    <div id="botPanel" class="no-print hidden fixed bottom-24 right-5 z-50 w-[calc(100vw-2.5rem)] sm:w-96 h-[28rem] max-h-[70vh] bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div class="px-4 py-3 text-white flex items-center justify-between" style="background:var(--ink)">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-lg">🤖</span>
+                <div><p class="font-display font-bold text-sm leading-tight">UY1-BOT</p>
+                <p class="text-[11px] text-sky-100/75 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>en ligne · assistant automatique</p></div>
+            </div>
+            <button onclick="toggleBot()" aria-label="Fermer" class="p-1 hover:bg-white/10 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <div id="botMessages" class="flex-1 overflow-y-auto p-3 flex flex-col gap-2"></div>
+        <div class="px-3 pb-1 flex flex-wrap gap-1.5">
+            <button onclick="sendBot('cours maintenant')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Cours maintenant</button>
+            <button onclick="sendBot('absences')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Absences du jour</button>
+            <button onclick="sendBot('cours demain')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Cours demain</button>
+        </div>
+        <div class="p-3 border-t border-slate-200 flex gap-2">
+            <input id="botInput" maxlength="300" onkeydown="if(event.key==='Enter')sendBot()" placeholder="Tapez votre requête…" class="flex-1 px-3 py-2 border border-slate-300 rounded-xl text-sm">
+            <button onclick="sendBot()" class="px-3 rounded-xl text-white text-sm font-semibold" style="background:var(--ink2)">Envoyer</button>
+        </div>
+    </div>
 </body>
 </html>
