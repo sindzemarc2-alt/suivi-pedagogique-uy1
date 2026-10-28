@@ -2,7 +2,8 @@
 <html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b2545">
     <title>Suivi pédagogique • UY1 ICT4D</title>
 
     <!-- Tailwind CSS CDN -->
@@ -71,6 +72,47 @@
         .bot-dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;animation:botblink 1s infinite both}
         .bot-dots i:nth-child(2){animation-delay:.15s}.bot-dots i:nth-child(3){animation-delay:.3s}
         @keyframes botblink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+        /* ===== Fluidité & ergonomie mobile ===== */
+        html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+        body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+        button,a,[onclick]{transition:transform .14s ease,background-color .18s ease,box-shadow .18s ease,opacity .18s ease;touch-action:manipulation}
+        button:active{transform:scale(.97)}
+        header{transition:box-shadow .25s ease,background-color .25s ease}
+        header.scrolled{box-shadow:0 10px 28px -14px rgba(0,0,0,.65)}
+        @keyframes fadeIn{from{opacity:0}}
+        @keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98)}}
+        @keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+        @keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
+        [id^="modal"]:not(.hidden){animation:fadeIn .18s ease-out}
+        [id^="modal"]:not(.hidden)>div,#botPanel:not(.hidden){animation:modalIn .26s cubic-bezier(.2,.8,.2,1)}
+        #toastContainer>*{animation:toastIn .22s ease-out}
+        html.intro #uesGrid>div{animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both}
+        html.intro #uesGrid>div:nth-child(2){animation-delay:.04s}html.intro #uesGrid>div:nth-child(3){animation-delay:.08s}
+        html.intro #uesGrid>div:nth-child(4){animation-delay:.12s}html.intro #uesGrid>div:nth-child(5){animation-delay:.16s}
+        html.intro #uesGrid>div:nth-child(6){animation-delay:.2s}html.intro #uesGrid>div:nth-child(n+7){animation-delay:.24s}
+        #uesGrid>div:active{transform:scale(.985)}
+        .overflow-x-auto{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+        /* Téléphone et tablette tactile : zones de toucher confortables, pas de zoom automatique */
+        @media (pointer:coarse){
+            button,select,input:not([type=checkbox]):not([type=radio]){min-height:44px}
+            header button,header a{min-height:44px;display:inline-flex;align-items:center}
+            input,select,textarea{font-size:16px!important}
+        }
+        @media (max-width:640px){
+            .hero{padding:1.25rem;border-radius:1.5rem}
+            .hero h1{font-size:1.75rem}
+            .board-num{font-size:1.9rem}
+            .board dt{font-size:.66rem}
+            [id^="modal"]{align-items:flex-end;padding:0}
+            [id^="modal"]>div{width:100%;max-width:none;border-bottom-left-radius:0;border-bottom-right-radius:0;max-height:92vh;overflow-y:auto;padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
+            #toastContainer{left:.75rem;right:.75rem;bottom:calc(.75rem + env(safe-area-inset-bottom))}
+            #botFab{bottom:calc(1rem + env(safe-area-inset-bottom));right:1rem}
+            #botPanel{left:.75rem;right:.75rem;width:auto;bottom:calc(5.25rem + env(safe-area-inset-bottom));height:min(72vh,34rem)}
+        }
+        @media (max-width:480px){
+            header a span,header #btnAdminNav span{display:none}
+            #adminModeIndicator{font-size:0}
+        }
         /* Mode sombre */
         html.dark{color-scheme:dark}
         html.dark,html.dark body{background:#0a1222!important}
@@ -196,9 +238,9 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="sendPasswordReset()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
+                    <button onclick="openAccountModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
                         <i data-lucide="key-round" class="w-4 h-4 text-slate-500"></i>
-                        <span>Changer mon Mot de passe</span>
+                        <span>Mon compte</span>
                     </button>
                     <button onclick="exitAndLockTeacherWorkspace()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition shadow">
                         <i data-lucide="lock" class="w-4 h-4"></i>
@@ -452,6 +494,10 @@
                 </div>
             </div>
 
+            <div class="text-right">
+                <button type="button" onclick="forgotPassword('teacher')" class="text-xs text-sky-700 hover:underline font-semibold">Mot de passe oublié ?</button>
+            </div>
+
             <div id="authErrorMessage" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-semibold flex items-center space-x-1.5">
                 <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
                 <span id="authErrorText">Connexion impossible.</span>
@@ -519,6 +565,34 @@
     </div>
 
     <!-- TOAST NOTIFICATIONS -->
+    <!-- MODAL : MON COMPTE -->
+    <div id="modalAccount" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-slate-900">Mon compte</h3>
+                <button onclick="closeAccountModal()" aria-label="Fermer" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">Connecté avec : <b id="accountEmail" class="text-slate-800"></b></p>
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-slate-800">Changer mon mot de passe</p>
+                <input type="password" id="accCurrentPwd" autocomplete="current-password" placeholder="Mot de passe actuel" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <input type="password" id="accNewPwd" autocomplete="new-password" placeholder="Nouveau mot de passe (6 caractères min.)" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <button onclick="changeMyPassword()" class="w-full py-2.5 bg-sky-900 hover:bg-sky-800 text-white rounded-xl text-sm font-bold">Enregistrer le nouveau mot de passe</button>
+            </div>
+            <div class="space-y-2 border-t border-slate-200 pt-4">
+                <p class="text-sm font-bold text-slate-800">Changer mon adresse email</p>
+                <input type="password" id="accEmailPwd" autocomplete="current-password" placeholder="Mot de passe actuel" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <input type="email" id="accNewEmail" autocomplete="email" placeholder="Nouvelle adresse email" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <button onclick="changeMyEmail()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-bold">Envoyer le lien de confirmation</button>
+            </div>
+            <div class="border-t border-slate-200 pt-4 flex flex-wrap gap-2">
+                <button onclick="switchAccount()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Changer de compte</button>
+                <button onclick="sendPasswordReset()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Mot de passe oublié (envoyer un email)</button>
+            </div>
+            <p id="accountMsg" class="text-xs font-semibold hidden"></p>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
     <!-- ============================================== -->
@@ -542,7 +616,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence, reauthenticateWithCredential, EmailAuthProvider, updatePassword, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         // Configuration Firebase
         const firebaseConfig = {
@@ -672,10 +746,18 @@
         // BOT-ENGINE-START
         const norm = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        const realSemester = () => { const m = new Date().getMonth(); return (m >= 8 || m === 0) ? 1 : 2; }; // sept-janv : S1, fév-juil : S2
         const slotsOf = (u) => String(u.schedule || '').split(' / ').map(p => {
             const m = /(\S+)\s+(\d{1,2}h\d{0,2}-\d{1,2}h\d{0,2})\s*(?:\((G\d)\))?/.exec(p);
             return m ? { day: norm(m[1]), time: m[2], g: m[3] || '' } : null;
         }).filter(Boolean);
+        const slotNow = (u) => {
+            const now = new Date(), t = now.getHours() * 60 + now.getMinutes(), day = DAYS[now.getDay()];
+            return slotsOf(u).find(s => {
+                const m = /(\d{1,2})h(\d{0,2})-(\d{1,2})h(\d{0,2})/.exec(s.time);
+                return m && s.day === day && t >= (+m[1] * 60 + (+m[2] || 0)) && t < (+m[3] * 60 + (+m[4] || 0));
+            }) || null;
+        };
         const ueFull = (u) => [
             `${u.code} : ${u.title || 'intitulé non renseigné'}`,
             `Enseignant : ${u.teacherName || 'non attribué'}`,
@@ -684,7 +766,66 @@
             `Heures : ${u.hoursTaught || 0}/${u.totalRequiredHours || 45}`,
             ...(u.isAbsentToday && isAdminLoggedIn ? ["Statut : ABSENT aujourd'hui"] : [])
         ].join('\n');
-        const HELP = "Requête non comprise.\nEssayez :\n- « ICT205 » ou « salle de ICT101 »\n- « cours demain » ou « cours lundi »\n- « cours maintenant »\n- « absences »\n- « matières du niveau 2 »\n- « salle R101 »";
+        const HELP = "Requête non comprise.\nEssayez :\n- « ICT205 » ou « salle de ICT101 »\n- « cours demain » ou « cours maintenant »\n- « CC de ICT205 » (a-t-il eu lieu ? barème, date)\n- « la salle R101 est-elle occupée ? » ou « salles libres »\n- « matières du niveau 2 »\n- Enseignant connecté dans sa matière : « note de DUPONT au CC 2 »";
+        const NOTES_PRIVEES = "Les notes sont confidentielles : seul l'enseignant de la matière, connecté et dans l'espace de sa matière, peut les consulter ici.";
+
+        const canSeeGrades = (ue) => !!(ue && currentUser && ue.teacherUid && ue.teacherUid === currentUser.uid && ue.code === activeUeId);
+
+        function resolveUe(t, all) {
+            const c = /\b(ict|eng|fra)\s?(\d{3})\b/.exec(t);
+            if (c) return all.find(x => norm(x.code) === c[1] + c[2]) || null;
+            if (activeUeId && uesData[activeUeId]) return uesData[activeUeId];
+            return all.find(u => u.title && norm(u.title).split(/\W+/).filter(w => w.length > 4).some(w => t.includes(w))) || null;
+        }
+
+        function ccInfo(ue) {
+            const evals = ue.evaluations || [];
+            if (!evals.length) return `${ue.code} : aucun CC n'a été créé pour le moment.`;
+            const today = todayStr();
+            const own = canSeeGrades(ue), students = own ? studentsForUe(ue) : [];
+            const rows = evals.map((e, i) => {
+                const state = !e.date ? 'date non précisée' : e.date < today ? 'déjà passé' : e.date === today ? "aujourd'hui" : 'à venir';
+                const d = e.date ? e.date.split('-').reverse().join('/') : '—';
+                let extra = '';
+                if (own && students.length) {
+                    const n = students.filter(s => ((ue.studentGrades || {})[s.matricule] || {})[e.id] != null).length;
+                    extra = `, notes saisies : ${n}/${students.length}`;
+                }
+                return `- CC${i + 1} « ${e.title} » : barème /${e.max}, ${d} (${state})${extra}`;
+            });
+            const done = evals.filter(e => e.date && e.date <= today).length;
+            return `${ue.code} : ${evals.length} CC créé(s), dont ${done} déjà passé(s) ou aujourd'hui.\n` + rows.join('\n');
+        }
+
+        function botGrade(t, ue) {
+            if (!canSeeGrades(ue)) return NOTES_PRIVEES;
+            const evals = ue.evaluations || [];
+            if (!evals.length) return `${ue.code} : aucun CC n'a été créé pour le moment.`;
+            const num = /\bcc\s?(\d+)\b/.exec(t);
+            const idx = num ? +num[1] - 1 : evals.findIndex(e => norm(e.title).split(/\W+/).filter(w => w.length > 2).some(w => t.includes(w)));
+            if (idx < 0 || !evals[idx]) return "CC introuvable. Disponibles :\n" + evals.map((e, i) => `- CC${i + 1} : ${e.title}`).join('\n');
+            const ev = evals[idx];
+            const students = studentsForUe(ue);
+            if (!students.length) return "Aucune liste d'étudiants n'est enregistrée pour cette matière.";
+            const scored = students.map(s => ({
+                s,
+                k: norm(s.name).split(/\W+/).filter(w => w.length > 2 && t.includes(w)).length + (t.includes(norm(s.matricule)) ? 5 : 0)
+            })).filter(x => x.k > 0).sort((a, b) => b.k - a.k);
+            if (!scored.length) return "Quel étudiant ? Donnez son nom ou son matricule (ex. « note de DUPONT au CC 2 »).";
+            if (scored.length > 1 && scored[1].k === scored[0].k)
+                return "Plusieurs étudiants correspondent :\n" + scored.slice(0, 4).map(x => `- ${x.s.name} (${x.s.matricule})`).join('\n') + "\nPrécisez le nom complet ou le matricule.";
+            const st = scored[0].s;
+            const g = ((ue.studentGrades || {})[st.matricule] || {})[ev.id];
+            return g == null
+                ? `${st.name} (${st.matricule}) : aucune note saisie pour le CC${idx + 1} « ${ev.title} ».`
+                : `${st.name} (${st.matricule}) : ${g}/${ev.max} au CC${idx + 1} « ${ev.title} » (${ue.code}).`;
+        }
+
+        function roomStatus(all, key) {
+            const sem = realSemester();
+            const run = all.filter(u => u.semester === sem && norm(u.room).includes(key)).map(u => ({ u, s: slotNow(u) })).filter(x => x.s);
+            return run;
+        }
 
         function botAnswer(q) {
             const t = norm(q);
@@ -692,18 +833,44 @@
             const today = DAYS[new Date().getDay()], tomorrow = DAYS[(new Date().getDay() + 1) % 7];
             const lv = /\b(?:niveau|ictl|l)\s?([123])\b/.exec(t);
             const sem = /\b(?:semestre|s)\s?([12])\b/.exec(t);
-            const level = lv ? +lv[1] : null, semester = sem ? +sem[1] : currentSemestre;
+            const level = lv ? +lv[1] : null, semester = sem ? +sem[1] : realSemester();
 
-            if (/\b(bonjour|salut|bonsoir|hello|coucou)\b/.test(t)) return "Bip bip ! Bonjour.\nDemandez-moi un cours (ex. ICT205), une salle, un enseignant ou « cours demain ».";
+            if (/\b(bonjour|salut|bonsoir|hello|coucou)\b/.test(t)) return "Bip bip ! Bonjour.\nDemandez-moi un cours (ex. ICT205), un CC, une salle ou « cours demain ».";
             if (/\b(aide|help)\b|que sais|que peux/.test(t)) return HELP;
             if (/absen|indisponible/.test(t)) {
                 if (!isAdminLoggedIn) return "Les avis d'absence sont réservés à l'administration.";
                 const a = all.filter(u => u.isAbsentToday);
                 return a.length ? "Absences du jour :\n" + a.map(u => `- ${u.code} : ${u.teacherName || 'enseignant'}`).join('\n') : "Calcul terminé. Aucune absence déclarée aujourd'hui.";
             }
+
+            // --- CC et notes ---
+            const ccWord = /\bcc\b|\bcc\s?\d|evaluation|controle continu|devoir/.test(t);
+            if (ccWord) {
+                const ue = resolveUe(t, all);
+                if (!ue) return "De quelle matière parlez-vous ? Exemple : « CC de ICT205 ».";
+                if (/\bnotes?\b|combien|obtenu|\ba eu\b|resultat|moyenne/.test(t)) return botGrade(t, ue);
+                return ccInfo(ue);
+            }
+
+            // --- Occupation des salles ---
+            const room = /\b(r101|s\d{3})\b/.exec(t);
+            if (room && /occup|libre|disponible|vide|utilis|en cours|en ce moment|maintenant/.test(t)) {
+                const key = room[1], label = key.toUpperCase();
+                const run = roomStatus(all, key);
+                if (!run.length) return `Salle ${label} : libre en ce moment.`;
+                return `Salle ${label} : OCCUPÉE.\n` + run.map(x => `- ${x.u.code}${x.s.g ? ' ' + x.s.g : ''}, ${x.s.time}`).join('\n')
+                    + (/^s00[38]$/.test(key) ? "\nNote : S003 et S008 sont partagées par les L2, l'emploi du temps ne précise pas la salle exacte." : '');
+            }
+            if (/salles?/.test(t) && /libre|occup|disponible|vide/.test(t)) {
+                return "État des salles en ce moment :\n" + ['R101', 'S003', 'S008', 'S107'].map(r => {
+                    const run = roomStatus(all, r.toLowerCase());
+                    return `- ${r} : ${run.length ? 'occupée (' + run.map(x => x.u.code).join(', ') + ')' : 'libre'}`;
+                }).join('\n');
+            }
+
             if (/maintenant|en ce moment|en cours/.test(t)) {
-                const c = all.filter(u => isNow(u.schedule));
-                return c.length ? "Cours en cours :\n" + c.map(u => `- ${u.code} (${u.title || '?'}), salle ${u.room}`).join('\n') : "Aucun cours en cours à cette heure.";
+                const c = all.filter(u => u.semester === realSemester()).map(u => ({ u, s: slotNow(u) })).filter(x => x.s);
+                return c.length ? "Cours en cours :\n" + c.map(x => `- ${x.u.code}${x.s.g ? ' ' + x.s.g : ''} (${x.u.title || '?'}), salle ${x.u.room}`).join('\n') : "Aucun cours en cours à cette heure.";
             }
             const code = /\b(ict|eng|fra)\s?(\d{3})\b/.exec(t);
             if (code) {
@@ -715,9 +882,8 @@
                 if (/progress|avance|effectu|combien/.test(t)) return `${u.code} : ${u.hoursTaught || 0}h effectuées sur ${u.totalRequiredHours || 45}h.`;
                 return ueFull(u);
             }
-            const room = /\b(r101|s\d{3})\b/.exec(t);
             if (room) {
-                const r = all.filter(u => norm(u.room).includes(room[1]) && (!sem || u.semester === semester));
+                const r = all.filter(u => norm(u.room).includes(room[1]) && u.semester === semester);
                 return r.length ? `Matières en salle ${room[1].toUpperCase()} :\n` + r.map(u => `- ${u.code} : ${u.title || '?'}`).join('\n') : `Aucune matière trouvée pour la salle ${room[1].toUpperCase()}.`;
             }
             const day = /aujourd/.test(t) ? today : /demain/.test(t) ? tomorrow : DAYS.find(d => t.includes(d));
@@ -744,7 +910,7 @@
             panel.classList.toggle('hidden');
             if (!panel.classList.contains('hidden')) {
                 if (!document.getElementById('botMessages').children.length)
-                    botAdd('bot', "Bip bip ! Je suis UY1-BOT.\nPosez-moi vos questions sur les enseignants, salles, horaires et absences.\nJe n'ai accès à aucune note.");
+                    botAdd('bot', "Bip bip ! Je suis UY1-BOT.\nPosez-moi vos questions sur les matières, salles, horaires et CC.\nLes notes ne sont consultables que par l'enseignant de la matière.");
                 document.getElementById('botInput').focus();
             }
         };
@@ -841,8 +1007,8 @@
             } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); }
         }
         const authMsg = (e) => ({
-            'auth/invalid-credential': "Email ou mot de passe incorrect.", 'auth/wrong-password': "Email ou mot de passe incorrect.",
-            'auth/user-not-found': "Email ou mot de passe incorrect.", 'auth/email-already-in-use': "Ce compte existe déjà : décochez « Créer mon compte ».",
+            'auth/invalid-credential': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/wrong-password': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/requires-recent-login': "Pour votre sécurité, reconnectez-vous puis réessayez.",
+            'auth/user-not-found': "Email ou mot de passe incorrect.", 'auth/email-already-in-use': "Un compte existe déjà avec cet email.",
             'auth/weak-password': "Mot de passe trop faible (6 caractères minimum).", 'auth/invalid-email': "Adresse email invalide.",
             'auth/too-many-requests': "Trop de tentatives, réessayez dans quelques minutes."
         }[e.code] || "Connexion impossible : " + (e.code || e.message));
@@ -1101,14 +1267,18 @@
             try {
                 if (!currentUser || currentUser.email !== email) {
                     if (create) {
-                        const created = await createUserWithEmailAndPassword(auth, email, pass);
-                        await sendEmailVerification(created.user);
-                        await signOut(auth);
-                        document.getElementById('authCreateAccount').checked = false;
-                        return fail(`Compte créé. Un email de vérification a été envoyé à ${email}. Cliquez sur le lien reçu (regardez aussi les spams), puis reconnectez-vous ici.`);
+                        try {
+                            const created = await createUserWithEmailAndPassword(auth, email, pass);
+                            await sendEmailVerification(created.user);
+                            await signOut(auth);
+                            document.getElementById('authCreateAccount').checked = false;
+                            return fail(`Compte créé. Un email de vérification a été envoyé à ${email}. Cliquez sur le lien reçu (regardez aussi les spams), puis reconnectez-vous ici.`);
+                        } catch (e) {
+                            if (e.code !== 'auth/email-already-in-use') throw e;
+                            document.getElementById('authCreateAccount').checked = false; // compte déjà existant : on se connecte simplement
+                        }
                     }
                     const cred = await signInWithEmailAndPassword(auth, email, pass);
-                    if ((await getDoc(doc(db, "admins", cred.user.uid))).exists()) { await signOut(auth); return fail("Ce compte est un compte administrateur : utilisez « Accès Admin »."); }
                     await cred.user.reload();
                     if (!cred.user.emailVerified) {
                         await sendEmailVerification(cred.user);
@@ -1130,6 +1300,67 @@
             closeTeacherAuthModal();
             openTeacherWorkspace(ueCode);
             showToast(`Connexion réussie à l'UE ${ueCode}`, "success");
+        };
+
+        // ===== COMPTE : mot de passe oublié, changement de mot de passe / email, changement de compte =====
+        const accMsg = (m, ok) => {
+            const el = document.getElementById('accountMsg');
+            el.textContent = m;
+            el.className = 'text-xs font-semibold ' + (ok ? 'text-emerald-700' : 'text-rose-700') + (m ? '' : ' hidden');
+        };
+        const accErr = (e) => (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') ? "Mot de passe actuel incorrect." : authMsg(e);
+        async function reauth(pwd) {
+            const u = auth.currentUser;
+            if (!u) throw { code: 'auth/requires-recent-login' };
+            await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pwd));
+            return u;
+        }
+        window.openAccountModal = function() {
+            if (!auth.currentUser) { showToast("Connectez-vous d'abord.", "warning"); return; }
+            document.getElementById('accountEmail').textContent = auth.currentUser.email;
+            ['accCurrentPwd', 'accNewPwd', 'accEmailPwd', 'accNewEmail'].forEach(i => document.getElementById(i).value = '');
+            accMsg('');
+            document.getElementById('modalAccount').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        };
+        window.closeAccountModal = function() { document.getElementById('modalAccount').classList.add('hidden'); };
+        window.changeMyPassword = async function() {
+            const cur = document.getElementById('accCurrentPwd').value, nw = document.getElementById('accNewPwd').value;
+            if (!cur) return accMsg("Saisissez votre mot de passe actuel.");
+            if (nw.length < 6) return accMsg("Le nouveau mot de passe doit contenir au moins 6 caractères.");
+            try {
+                const u = await reauth(cur);
+                await updatePassword(u, nw);
+                document.getElementById('accCurrentPwd').value = ''; document.getElementById('accNewPwd').value = '';
+                accMsg("Mot de passe modifié avec succès.", true);
+                showToast("Mot de passe modifié.", "success");
+            } catch (e) { console.error(e); accMsg(accErr(e)); }
+        };
+        window.changeMyEmail = async function() {
+            const pwd = document.getElementById('accEmailPwd').value, ne = document.getElementById('accNewEmail').value.trim();
+            if (!pwd) return accMsg("Saisissez votre mot de passe actuel.");
+            if (!/^\S+@\S+\.\S+$/.test(ne)) return accMsg("Adresse email invalide.");
+            try {
+                const u = await reauth(pwd);
+                await verifyBeforeUpdateEmail(u, ne);
+                accMsg(`Un lien de confirmation a été envoyé à ${ne}. Cliquez dessus : l'adresse changera, puis reconnectez-vous avec la nouvelle.`, true);
+            } catch (e) { console.error(e); accMsg(accErr(e)); }
+        };
+        window.switchAccount = async function() {
+            closeAccountModal();
+            if (isAdminLoggedIn && window.exitAdminView) { await window.exitAdminView(); return; }
+            exitAndLockTeacherWorkspace();
+            showToast("Session fermée. Choisissez une matière pour vous connecter avec un autre compte.", "info");
+        };
+        window.forgotPassword = async function(kind) {
+            const admin = kind === 'admin';
+            const email = document.getElementById(admin ? 'adminAuthEmailInput' : 'teacherAuthEmailInput').value.trim();
+            const box = document.getElementById(admin ? 'adminAuthErrorMessage' : 'authErrorMessage');
+            const txt = document.getElementById(admin ? 'adminAuthErrorText' : 'authErrorText');
+            if (!email) { box.classList.remove('hidden'); txt.textContent = "Saisissez d'abord votre adresse email, puis cliquez sur « Mot de passe oublié ? »."; return; }
+            box.classList.add('hidden');
+            try { await sendPasswordResetEmail(auth, email); } catch (e) { console.error(e); }
+            showToast(`Si un compte existe pour ${email}, un email de réinitialisation vient d'être envoyé (vérifiez les spams).`, "success");
         };
 
         window.sendPasswordReset = async function() {
@@ -1989,6 +2220,7 @@
         <div class="px-3 pb-1 flex flex-wrap gap-1.5">
             <button onclick="sendBot('cours maintenant')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Cours maintenant</button>
             <button onclick="sendBot('absences')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Absences du jour</button>
+            <button onclick="sendBot('salles libres')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Salles libres</button>
             <button onclick="sendBot('cours demain')" class="text-[11px] px-2 py-1 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-100">Cours demain</button>
         </div>
         <div class="p-3 border-t border-slate-200 flex gap-2">
@@ -1996,5 +2228,6 @@
             <button onclick="sendBot()" class="px-3 rounded-xl text-white text-sm font-semibold" style="background:var(--ink2)">Envoyer</button>
         </div>
     </div>
+<script>(function(){var h=document.querySelector('header');if(!h)return;var f=function(){h.classList.toggle('scrolled',window.scrollY>8)};addEventListener('scroll',f,{passive:true});f()})();</script>
 </body>
 </html>

@@ -2,7 +2,8 @@
 <html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b2545">
     <title>Administration • UY1 ICT4D</title>
 
     <!-- Tailwind CSS CDN -->
@@ -71,6 +72,47 @@
         .bot-dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;animation:botblink 1s infinite both}
         .bot-dots i:nth-child(2){animation-delay:.15s}.bot-dots i:nth-child(3){animation-delay:.3s}
         @keyframes botblink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+        /* ===== Fluidité & ergonomie mobile ===== */
+        html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+        body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+        button,a,[onclick]{transition:transform .14s ease,background-color .18s ease,box-shadow .18s ease,opacity .18s ease;touch-action:manipulation}
+        button:active{transform:scale(.97)}
+        header{transition:box-shadow .25s ease,background-color .25s ease}
+        header.scrolled{box-shadow:0 10px 28px -14px rgba(0,0,0,.65)}
+        @keyframes fadeIn{from{opacity:0}}
+        @keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98)}}
+        @keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+        @keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
+        [id^="modal"]:not(.hidden){animation:fadeIn .18s ease-out}
+        [id^="modal"]:not(.hidden)>div,#botPanel:not(.hidden){animation:modalIn .26s cubic-bezier(.2,.8,.2,1)}
+        #toastContainer>*{animation:toastIn .22s ease-out}
+        html.intro #uesGrid>div{animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both}
+        html.intro #uesGrid>div:nth-child(2){animation-delay:.04s}html.intro #uesGrid>div:nth-child(3){animation-delay:.08s}
+        html.intro #uesGrid>div:nth-child(4){animation-delay:.12s}html.intro #uesGrid>div:nth-child(5){animation-delay:.16s}
+        html.intro #uesGrid>div:nth-child(6){animation-delay:.2s}html.intro #uesGrid>div:nth-child(n+7){animation-delay:.24s}
+        #uesGrid>div:active{transform:scale(.985)}
+        .overflow-x-auto{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+        /* Téléphone et tablette tactile : zones de toucher confortables, pas de zoom automatique */
+        @media (pointer:coarse){
+            button,select,input:not([type=checkbox]):not([type=radio]){min-height:44px}
+            header button,header a{min-height:44px;display:inline-flex;align-items:center}
+            input,select,textarea{font-size:16px!important}
+        }
+        @media (max-width:640px){
+            .hero{padding:1.25rem;border-radius:1.5rem}
+            .hero h1{font-size:1.75rem}
+            .board-num{font-size:1.9rem}
+            .board dt{font-size:.66rem}
+            [id^="modal"]{align-items:flex-end;padding:0}
+            [id^="modal"]>div{width:100%;max-width:none;border-bottom-left-radius:0;border-bottom-right-radius:0;max-height:92vh;overflow-y:auto;padding-bottom:calc(1rem + env(safe-area-inset-bottom))}
+            #toastContainer{left:.75rem;right:.75rem;bottom:calc(.75rem + env(safe-area-inset-bottom))}
+            #botFab{bottom:calc(1rem + env(safe-area-inset-bottom));right:1rem}
+            #botPanel{left:.75rem;right:.75rem;width:auto;bottom:calc(5.25rem + env(safe-area-inset-bottom));height:min(72vh,34rem)}
+        }
+        @media (max-width:480px){
+            header a span,header #btnAdminNav span{display:none}
+            #adminModeIndicator{font-size:0}
+        }
         /* Mode sombre */
         html.dark{color-scheme:dark}
         html.dark,html.dark body{background:#0a1222!important}
@@ -127,7 +169,7 @@
                 <!-- Navigation droite -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
                     <button onclick="toggleTheme()" class="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Mode clair / sombre" aria-label="Changer de thème"><i data-lucide="moon" class="w-5 h-5"></i></button>
-                    <a href="index.html" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Portail</span></a>
+                    <a href="index.html" target="_blank" rel="noopener" title="Ouvrir le portail public dans un nouvel onglet" aria-label="Portail public" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i><span>Portail</span></a>
                     <span id="adminModeIndicator" class="hidden items-center px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold"><i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1 text-amber-400"></i> Admin Connecté</span>
                     <button id="btnAdminNav" onclick="handleAdminButtonClick()" class="px-3 sm:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-sky-500/40 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm"><i data-lucide="shield" class="w-4 h-4"></i><span id="btnAdminNavText">Connexion Admin</span></button>
                 </div>
@@ -165,9 +207,9 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="sendPasswordReset()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
+                    <button onclick="openAccountModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
                         <i data-lucide="key-round" class="w-4 h-4 text-slate-500"></i>
-                        <span>Changer mon Mot de passe</span>
+                        <span>Mon compte</span>
                     </button>
                     <button onclick="exitAndLockTeacherWorkspace()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition shadow">
                         <i data-lucide="lock" class="w-4 h-4"></i>
@@ -589,6 +631,10 @@
                 </div>
             </div>
 
+            <div class="text-right">
+                <button type="button" onclick="forgotPassword('admin')" class="text-xs text-sky-700 hover:underline font-semibold">Mot de passe oublié ?</button>
+            </div>
+
             <div id="adminAuthErrorMessage" class="hidden p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-semibold flex items-center space-x-1.5">
                 <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
                 <span id="adminAuthErrorText">Mot de passe maître invalide.</span>
@@ -656,6 +702,34 @@
     </div>
 
     <!-- TOAST NOTIFICATIONS -->
+    <!-- MODAL : MON COMPTE -->
+    <div id="modalAccount" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-slate-900">Mon compte</h3>
+                <button onclick="closeAccountModal()" aria-label="Fermer" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">Connecté avec : <b id="accountEmail" class="text-slate-800"></b></p>
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-slate-800">Changer mon mot de passe</p>
+                <input type="password" id="accCurrentPwd" autocomplete="current-password" placeholder="Mot de passe actuel" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <input type="password" id="accNewPwd" autocomplete="new-password" placeholder="Nouveau mot de passe (6 caractères min.)" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <button onclick="changeMyPassword()" class="w-full py-2.5 bg-sky-900 hover:bg-sky-800 text-white rounded-xl text-sm font-bold">Enregistrer le nouveau mot de passe</button>
+            </div>
+            <div class="space-y-2 border-t border-slate-200 pt-4">
+                <p class="text-sm font-bold text-slate-800">Changer mon adresse email</p>
+                <input type="password" id="accEmailPwd" autocomplete="current-password" placeholder="Mot de passe actuel" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <input type="email" id="accNewEmail" autocomplete="email" placeholder="Nouvelle adresse email" class="w-full p-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500">
+                <button onclick="changeMyEmail()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-bold">Envoyer le lien de confirmation</button>
+            </div>
+            <div class="border-t border-slate-200 pt-4 flex flex-wrap gap-2">
+                <button onclick="switchAccount()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Changer de compte</button>
+                <button onclick="sendPasswordReset()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Mot de passe oublié (envoyer un email)</button>
+            </div>
+            <p id="accountMsg" class="text-xs font-semibold hidden"></p>
+        </div>
+    </div>
+
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
     <!-- ============================================== -->
@@ -679,7 +753,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, sendEmailVerification, setPersistence, inMemoryPersistence, reauthenticateWithCredential, EmailAuthProvider, updatePassword, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         // Configuration Firebase
         const firebaseConfig = {
@@ -860,8 +934,8 @@
             } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); }
         }
         const authMsg = (e) => ({
-            'auth/invalid-credential': "Email ou mot de passe incorrect.", 'auth/wrong-password': "Email ou mot de passe incorrect.",
-            'auth/user-not-found': "Email ou mot de passe incorrect.", 'auth/email-already-in-use': "Ce compte existe déjà : décochez « Créer mon compte ».",
+            'auth/invalid-credential': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/wrong-password': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/requires-recent-login': "Pour votre sécurité, reconnectez-vous puis réessayez.",
+            'auth/user-not-found': "Email ou mot de passe incorrect.", 'auth/email-already-in-use': "Un compte existe déjà avec cet email.",
             'auth/weak-password': "Mot de passe trop faible (6 caractères minimum).", 'auth/invalid-email': "Adresse email invalide.",
             'auth/too-many-requests': "Trop de tentatives, réessayez dans quelques minutes."
         }[e.code] || "Connexion impossible : " + (e.code || e.message));
@@ -1000,6 +1074,67 @@
             document.getElementById('modalTeacherAuth').classList.remove('hidden');
             if (window.lucide) lucide.createIcons();
             setTimeout(() => document.getElementById('teacherAuthEmailInput').focus(), 150);
+        };
+
+        // ===== COMPTE : mot de passe oublié, changement de mot de passe / email, changement de compte =====
+        const accMsg = (m, ok) => {
+            const el = document.getElementById('accountMsg');
+            el.textContent = m;
+            el.className = 'text-xs font-semibold ' + (ok ? 'text-emerald-700' : 'text-rose-700') + (m ? '' : ' hidden');
+        };
+        const accErr = (e) => (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') ? "Mot de passe actuel incorrect." : authMsg(e);
+        async function reauth(pwd) {
+            const u = auth.currentUser;
+            if (!u) throw { code: 'auth/requires-recent-login' };
+            await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pwd));
+            return u;
+        }
+        window.openAccountModal = function() {
+            if (!auth.currentUser) { showToast("Connectez-vous d'abord.", "warning"); return; }
+            document.getElementById('accountEmail').textContent = auth.currentUser.email;
+            ['accCurrentPwd', 'accNewPwd', 'accEmailPwd', 'accNewEmail'].forEach(i => document.getElementById(i).value = '');
+            accMsg('');
+            document.getElementById('modalAccount').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        };
+        window.closeAccountModal = function() { document.getElementById('modalAccount').classList.add('hidden'); };
+        window.changeMyPassword = async function() {
+            const cur = document.getElementById('accCurrentPwd').value, nw = document.getElementById('accNewPwd').value;
+            if (!cur) return accMsg("Saisissez votre mot de passe actuel.");
+            if (nw.length < 6) return accMsg("Le nouveau mot de passe doit contenir au moins 6 caractères.");
+            try {
+                const u = await reauth(cur);
+                await updatePassword(u, nw);
+                document.getElementById('accCurrentPwd').value = ''; document.getElementById('accNewPwd').value = '';
+                accMsg("Mot de passe modifié avec succès.", true);
+                showToast("Mot de passe modifié.", "success");
+            } catch (e) { console.error(e); accMsg(accErr(e)); }
+        };
+        window.changeMyEmail = async function() {
+            const pwd = document.getElementById('accEmailPwd').value, ne = document.getElementById('accNewEmail').value.trim();
+            if (!pwd) return accMsg("Saisissez votre mot de passe actuel.");
+            if (!/^\S+@\S+\.\S+$/.test(ne)) return accMsg("Adresse email invalide.");
+            try {
+                const u = await reauth(pwd);
+                await verifyBeforeUpdateEmail(u, ne);
+                accMsg(`Un lien de confirmation a été envoyé à ${ne}. Cliquez dessus : l'adresse changera, puis reconnectez-vous avec la nouvelle.`, true);
+            } catch (e) { console.error(e); accMsg(accErr(e)); }
+        };
+        window.switchAccount = async function() {
+            closeAccountModal();
+            if (isAdminLoggedIn && window.exitAdminView) { await window.exitAdminView(); return; }
+            exitAndLockTeacherWorkspace();
+            showToast("Session fermée. Choisissez une matière pour vous connecter avec un autre compte.", "info");
+        };
+        window.forgotPassword = async function(kind) {
+            const admin = kind === 'admin';
+            const email = document.getElementById(admin ? 'adminAuthEmailInput' : 'teacherAuthEmailInput').value.trim();
+            const box = document.getElementById(admin ? 'adminAuthErrorMessage' : 'authErrorMessage');
+            const txt = document.getElementById(admin ? 'adminAuthErrorText' : 'authErrorText');
+            if (!email) { box.classList.remove('hidden'); txt.textContent = "Saisissez d'abord votre adresse email, puis cliquez sur « Mot de passe oublié ? »."; return; }
+            box.classList.add('hidden');
+            try { await sendPasswordResetEmail(auth, email); } catch (e) { console.error(e); }
+            showToast(`Si un compte existe pour ${email}, un email de réinitialisation vient d'être envoyé (vérifiez les spams).`, "success");
         };
 
         window.sendPasswordReset = async function() {
@@ -2196,5 +2331,6 @@
             if (window.lucide) lucide.createIcons();
         });
     </script>
+<script>(function(){var h=document.querySelector('header');if(!h)return;var f=function(){h.classList.toggle('scrolled',window.scrollY>8)};addEventListener('scroll',f,{passive:true});f()})();</script>
 </body>
 </html>
