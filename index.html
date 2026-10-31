@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0b2545">
+    <link rel="icon" type="image/svg+xml" href="assets/uy1-ict4d-logo.svg">
+    <link rel="apple-touch-icon" href="assets/uy1-ict4d-logo.svg">
     <title>Suivi pédagogique • UY1 ICT4D</title>
 
     <!-- Tailwind CSS CDN -->
@@ -140,9 +142,7 @@
             <div class="flex justify-between items-center h-16 sm:h-20">
                 <!-- Logo & Titre UY1 -->
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="handleLogoClick()">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl shadow-md flex items-center justify-center p-1 border-2 border-sky-400">
-                        <i data-lucide="graduation-cap" class="w-7 h-7 sm:w-8 sm:h-8 text-sky-800"></i>
-                    </div>
+                    <img src="assets/uy1-ict4d-logo.svg" alt="Logo UY1 ICT4D" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shadow-md object-cover">
                     <div>
                         <div class="flex items-center space-x-2">
                             <span class="text-lg sm:text-xl font-black tracking-tight text-white">UY1 • ICT4D</span>
@@ -326,9 +326,17 @@
                             <p class="text-xs text-slate-500">Ajoutez autant de CC que souhaité. Le total final sur 20 est calculé automatiquement.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
+                            <select id="ccGroupSelector" onchange="selectStudentGroup(this.value)" aria-label="Groupe pour les notes CC" class="px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
+                                <option value="group1">Groupe 1</option>
+                                <option value="group2">Groupe 2</option>
+                            </select>
                             <button onclick="openAddCcModal()" class="px-3.5 py-2 bg-sky-900 hover:bg-sky-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow">
                                 <i data-lucide="plus" class="w-4 h-4"></i>
                                 <span>Ajouter un CC</span>
+                            </button>
+                            <button onclick="clearUeStudentList()" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition" title="Vider la liste d'étudiants de cette UE">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span>Vider la liste</span>
                             </button>
                             <button onclick="exportCcExcel()" class="px-3.5 py-2 bg-green-700 hover:bg-green-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow">
                                 <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
@@ -350,6 +358,7 @@
                                     <th class="p-3 w-28">Matricule</th>
                                     <th class="p-3">Nom & Prénoms de l'Étudiant</th>
                                     <th class="p-3 w-24 text-center bg-sky-50 text-sky-950 font-black">Note CC / 20</th>
+                                    <th class="p-3 w-12 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="ccTableBody" class="divide-y divide-slate-200 bg-white">
@@ -367,6 +376,10 @@
                             <p class="text-xs text-slate-500">Sélectionnez la date du cours et pointez chaque étudiant : Vert = Présent, Rouge = Absent.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
+                            <select id="attendanceGroupSelector" onchange="selectStudentGroup(this.value)" aria-label="Groupe pour la fiche d'appel" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800">
+                                <option value="group1">Groupe 1</option>
+                                <option value="group2">Groupe 2</option>
+                            </select>
                             <div class="flex items-center space-x-2">
                                 <label class="text-xs font-semibold text-slate-600">Date de la séance :</label>
                                 <input type="date" id="attendanceDatePicker" onchange="loadAttendanceForDate()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-sky-500">
@@ -374,7 +387,7 @@
                             <button onclick="markAllPresent()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Tous Présents</button>
                             <button onclick="generateAttendancePdf()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center space-x-1">
                                 <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                                <span>Export Fiche Appel (PDF)</span>
+                                <span>Exporter le PDF du groupe</span>
                             </button>
                             <button onclick="confirmAttendanceCall()" class="px-3.5 py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold">Confirmer et télécharger</button>
                             <button onclick="startNewAttendanceCall()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Nouvel appel</button>
@@ -387,7 +400,10 @@
                                 <p class="text-sm font-bold text-slate-900">Importer la liste d'étudiants pour l'appel</p>
                                 <p id="classListSourceHint" class="text-xs text-slate-500">Excel, CSV, PDF, Word, ou saisie manuelle. La liste est enregistrée pour ce cours.</p>
                             </div>
-                            <button onclick="openPasteListModal('ue')" class="px-3 py-1.5 bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-semibold">Coller une liste</button>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="openPasteListModal('ue')" class="px-3 py-1.5 bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-800 rounded-lg text-xs font-semibold">Coller une liste</button>
+                                <button onclick="clearUeStudentList()" class="px-3 py-1.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 rounded-lg text-xs font-semibold">Vider la liste</button>
+                            </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <input type="file" id="teacherImportFileInput" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt" onchange="handleClassListFileUpload(event, 'ue')" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-100 file:text-indigo-800 hover:file:bg-indigo-200 cursor-pointer border border-indigo-200 rounded-xl p-1 bg-white">
@@ -399,7 +415,7 @@
                         </div>
                         <div id="teacherImportFeedback" class="hidden p-3 bg-white border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between gap-3">
                             <span id="teacherImportFeedbackText"></span>
-                            <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm">Enregistrer pour l'appel</button>
+                            <button onclick="confirmSaveImportedStudents()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm">Ajouter à la liste</button>
                         </div>
                     </div>
 
@@ -434,6 +450,7 @@
                                     <th class="p-3 w-32">Matricule</th>
                                     <th class="p-3">Nom & Prénoms</th>
                                     <th class="p-3 w-40 text-center">Statut d'Appel</th>
+                                    <th class="p-3 w-12 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="attendanceTableBody" class="divide-y divide-slate-200 bg-white">
@@ -795,7 +812,7 @@
                 const d = e.date ? e.date.split('-').reverse().join('/') : '—';
                 let extra = '';
                 if (own && students.length) {
-                    const n = students.filter(s => ((ue.studentGrades || {})[s.matricule] || {})[e.id] != null).length;
+                    const n = students.filter(s => (studentGradesForGroup(ue)[s.matricule] || {})[e.id] != null).length;
                     extra = `, notes saisies : ${n}/${students.length}`;
                 }
                 return `- CC${i + 1} « ${e.title} » : barème /${e.max}, ${d} (${state})${extra}`;
@@ -822,7 +839,7 @@
             if (scored.length > 1 && scored[1].k === scored[0].k)
                 return "Plusieurs étudiants correspondent :\n" + scored.slice(0, 4).map(x => `- ${x.s.name} (${x.s.matricule})`).join('\n') + "\nPrécisez le nom complet ou le matricule.";
             const st = scored[0].s;
-            const g = ((ue.studentGrades || {})[st.matricule] || {})[ev.id];
+            const g = (studentGradesForGroup(ue)[st.matricule] || {})[ev.id];
             return g == null
                 ? `${st.name} (${st.matricule}) : aucune note saisie pour le CC${idx + 1} « ${ev.title} ».`
                 : `${st.name} (${st.matricule}) : ${g}/${ev.max} au CC${idx + 1} « ${ev.title} » (${ue.code}).`;
@@ -974,9 +991,9 @@
             const who = ue.teacherName || 'Un enseignant';
             const keys = Object.keys(data);
             const once = (k, ms) => { const now = Date.now(); if (notifThrottle[k] && now - notifThrottle[k] < ms) return false; notifThrottle[k] = now; return true; };
-            if (keys.some(k => k.startsWith('studentGrades')) && once('g' + code, 120000))
+            if (keys.some(k => k.startsWith('studentGrades') || k.startsWith('studentGroupGrades')) && once('g' + code, 120000))
                 sendNotificationToAdmin(`Notes modifiées : ${code}`, `${who} a saisi ou modifié des notes de CC.`, 'info');
-            if (keys.some(k => k === 'attendance' || k.startsWith('attendance.')) && once('a' + code, 120000))
+            if (keys.some(k => k === 'attendance' || k.startsWith('attendance.') || k.startsWith('groupAttendance')) && once('a' + code, 120000))
                 sendNotificationToAdmin(`Fiche d'appel modifiée : ${code}`, `${who} a mis à jour la présence des étudiants.`, 'info');
             if (keys.includes('evaluations'))
                 sendNotificationToAdmin(`Évaluations CC modifiées : ${code}`, `${who} a ajouté, modifié ou supprimé une évaluation.`, 'important');
@@ -1000,7 +1017,7 @@
         const ROOM_BY_LEVEL = { 1: 'R101', 2: 'S003/S008', 3: 'S107' }; // L1 : R101, L2 : S003/S008, L3 : S107, quel que soit le semestre
 
         let currentUser = null, privUnsub = null, listUnsubs = [], assignments = {};
-        const PRIV = ['studentGrades', 'attendance', 'attendanceSessions', 'history', 'studentList'];
+        const PRIV = ['studentGrades', 'studentGroupGrades', 'attendance', 'groupAttendance', 'attendanceSessions', 'history', 'studentList', 'studentGroups', 'studentListOverride'];
         async function updUe(code, data) {
             if (!navigator.onLine) showToast("Hors-ligne : modification enregistrée, envoi dès que la connexion revient.", "warning");
             const pub = {}, priv = {};
@@ -1026,12 +1043,29 @@
         let currentSemestre = 1;
         let uesData = {};
         let activeUeId = null;
+        let activeStudentGroup = 'group1';
+        const STUDENT_GROUP_LABELS = { group1: 'Groupe 1', group2: 'Groupe 2' };
         let isAdminLoggedIn = false;
         let classLists = { 1: [], 2: [], 3: [] };
         let pendingImportedStudents = [];
         let pendingTargetLevel = 1;
         let pendingImportMode = 'level';
+        let pendingStudentGroup = 'group1';
         let adminNotifications = [];
+
+        window.selectStudentGroup = function(group) {
+            if (!Object.prototype.hasOwnProperty.call(STUDENT_GROUP_LABELS, group)) return;
+            activeStudentGroup = group;
+            ['ccGroupSelector', 'attendanceGroupSelector'].forEach(id => {
+                const selector = document.getElementById(id);
+                if (selector) selector.value = group;
+            });
+            document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
+            if (activeUeId && uesData[activeUeId]) {
+                renderCcTable();
+                renderAttendanceTable();
+            }
+        };
 
         // Pré-remplissage local immédiat
         PROGRAM_STRUCTURE.forEach(item => {
@@ -1385,7 +1419,7 @@
 
         window.exitAndLockTeacherWorkspace = function() {
             if (privUnsub) { privUnsub(); privUnsub = null; }
-            if (activeUeId && uesData[activeUeId]) Object.assign(uesData[activeUeId], { studentGrades: {}, attendance: {}, attendanceSessions: [], history: [] });
+            if (activeUeId && uesData[activeUeId]) Object.assign(uesData[activeUeId], { studentGrades: {}, studentGroupGrades: {}, attendance: {}, groupAttendance: {}, attendanceSessions: [], history: [], studentList: [], studentGroups: {}, studentListOverride: false });
             activeUeId = null;
             if (!isAdminLoggedIn) signOut(auth);
             navigateTo(isAdminLoggedIn ? 'admin' : 'portal');
@@ -1510,12 +1544,9 @@
             const ue = uesData[activeUeId];
             if (!ue) return;
 
-            const students = studentsForUe(ue).slice().sort((a, b) => {
-                const normalizeName = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr');
-                return normalizeName(a.name).localeCompare(normalizeName(b.name), 'fr') || String(a.matricule || '').localeCompare(String(b.matricule || ''), 'fr', { numeric: true });
-            });
+            const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
-            const grades = ue.studentGrades || {};
+            const grades = studentGradesForGroup(ue);
 
             const headerRow = document.getElementById('ccTableHeaderRow');
             let colsHtml = `
@@ -1538,13 +1569,14 @@
             });
 
             colsHtml += `<th class="p-3 w-24 text-center bg-sky-50 text-sky-950 font-black border-l border-sky-100">Moyenne CC / 20</th>`;
+            colsHtml += `<th class="p-3 w-12 text-center">Actions</th>`;
             headerRow.innerHTML = colsHtml;
 
             const tbody = document.getElementById('ccTableBody');
             if (students.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="${4 + evals.length}" class="p-6 text-center text-slate-400 italic">
+                        <td colspan="${5 + evals.length}" class="p-6 text-center text-slate-400 italic">
                             Aucune liste d'étudiants. Importez un fichier (Excel, CSV, PDF, Word) dans l'onglet Appel, ou demandez à l'administrateur d'importer la liste du niveau.
                         </td>
                     </tr>
@@ -1553,8 +1585,8 @@
                 return;
             }
 
-            const search = document.getElementById('ccStudentSearch')?.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('fr') || '';
-            const visibleStudents = students.filter(std => `${std.name} ${std.matricule}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('fr').includes(search));
+            const search = normalizeStudentText(document.getElementById('ccStudentSearch')?.value || '');
+            const visibleStudents = students.filter(std => normalizeStudentText(`${std.name} ${std.matricule}`).includes(search));
             tbody.innerHTML = visibleStudents.length ? visibleStudents.map((std, idx) => {
                 const stdGrades = grades[std.matricule] || {};
                 let sumWeighted = 0;
@@ -1563,7 +1595,7 @@
                 let rowColsHtml = `
                     <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
                     <td class="p-3 font-mono font-bold text-slate-800">${esc(std.matricule)}</td>
-                    <td class="p-3 font-semibold text-slate-900">${esc(std.name)}</td>
+                    <td class="p-3 font-semibold text-slate-900">${esc(cleanStudentName(std.name))}</td>
                 `;
 
                 evals.forEach((ev) => {
@@ -1589,10 +1621,15 @@
                     <td class="p-3 text-center font-black border-l border-sky-100 bg-sky-50/50 ${finalGrade !== '-' && parseFloat(finalGrade) >= 10 ? 'text-emerald-700' : 'text-slate-800'}">
                         ${finalGrade !== '-' ? `${finalGrade} / 20` : '-'}
                     </td>
+                    <td class="p-2 text-center">
+                        <button type="button" onclick="removeStudentFromUeList('${esc(std.matricule)}')" title="Retirer de la liste de cette UE" aria-label="Retirer ${esc(cleanStudentName(std.name))} de la liste de cette UE" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
                 `;
 
                 return `<tr class="hover:bg-slate-50 transition">${rowColsHtml}</tr>`;
-            }).join('') : `<tr><td colspan="${4 + evals.length}" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
+            }).join('') : `<tr><td colspan="${5 + evals.length}" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
 
             if (window.lucide) lucide.createIcons();
         };
@@ -1608,8 +1645,11 @@
                 return;
             }
             try {
+                const gradePath = activeStudentGroup === 'group1'
+                    ? `studentGrades.${matricule}.${evalId}`
+                    : `studentGroupGrades.${activeStudentGroup}.${matricule}.${evalId}`;
                 await updUe(activeUeId, {
-                    [`studentGrades.${matricule}.${evalId}`]: v === null ? deleteField() : v,
+                    [gradePath]: v === null ? deleteField() : v,
                     history: [
                         { action: "Saisie note CC", date: new Date().toISOString(), detail: `Matricule ${matricule} : ${v === null ? 'note effacée' : 'note enregistrée'}` },
                         ...(ue.history || []).slice(0, 50)
@@ -1675,6 +1715,13 @@
             showToast("Évaluation supprimée.", "info");
         };
 
+        async function saveAttendanceForGroup(ue, group, attendance) {
+            const groupAttendance = { ...(ue.groupAttendance || {}), [group]: attendance };
+            const saved = await updUe(activeUeId, { [`groupAttendance.${group}`]: attendance });
+            if (saved) ue.groupAttendance = groupAttendance;
+            return saved;
+        }
+
         // Table des Présences (Appel)
         window.renderAttendanceTable = function() {
             const ue = uesData[activeUeId];
@@ -1685,22 +1732,23 @@
             if (!picker.value) picker.value = new Date().toISOString().split('T')[0];
             const selectedDate = picker.value;
 
-            const dateRecords = (ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {};
+            const dateRecords = attendanceForGroup(ue)[selectedDate] || {};
 
             let presentCount = 0;
             let absentCount = 0;
 
             const hint = document.getElementById('classListSourceHint');
             if (hint) {
-                const fromUe = Array.isArray(ue.studentList) && ue.studentList.length;
-                hint.textContent = fromUe
-                    ? `${students.length} étudiant(s) enregistrés pour ce cours. Vous pouvez réimporter un fichier pour remplacer la liste.`
-                    : `Aucune liste propre à ce cours. ${students.length ? students.length + ' étudiant(s) issus de la liste du niveau ' + ue.level + '.' : 'Importez un fichier Excel/CSV/PDF/Word pour faire l\'appel.'}`;
+                const hasCourseList = Array.isArray(ue.studentGroups?.[activeStudentGroup])
+                    || (activeStudentGroup === 'group1' && (ue.studentListOverride || (Array.isArray(ue.studentList) && ue.studentList.length)));
+                hint.textContent = hasCourseList
+                    ? `${students.length} étudiant(s) dans ${studentGroupLabel()}. Les prochains imports l'enrichiront sans effacer les anciens.`
+                    : `Aucune liste enregistrée pour ${studentGroupLabel()}. ${students.length ? students.length + ' étudiant(s) issus de la liste du niveau ' + ue.level + '.' : 'Importez une liste pour ce groupe.'}`;
             }
 
             const tbody = document.getElementById('attendanceTableBody');
             if (students.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant. Importez la liste ci-dessus pour faire l'appel.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Aucun étudiant. Importez la liste ci-dessus pour faire l'appel.</td></tr>`;
                 document.getElementById('attendanceTotalCount').textContent = '0';
                 document.getElementById('attendancePresentCount').textContent = '0';
                 document.getElementById('attendanceAbsentCount').textContent = '0';
@@ -1714,8 +1762,8 @@
                 if (status === false) absentCount++;
             });
 
-            const search = document.getElementById('attendanceStudentSearch')?.value.trim().toLocaleLowerCase('fr') || '';
-            const visibleStudents = students.filter(std => `${std.name} ${std.matricule}`.toLocaleLowerCase('fr').includes(search));
+            const search = normalizeStudentText(document.getElementById('attendanceStudentSearch')?.value || '');
+            const visibleStudents = students.filter(std => normalizeStudentText(`${std.name} ${std.matricule}`).includes(search));
             tbody.innerHTML = visibleStudents.length ? visibleStudents.map((std, idx) => {
                 const status = dateRecords[std.matricule];
 
@@ -1723,7 +1771,7 @@
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 text-center text-slate-400 font-mono">${idx + 1}</td>
                         <td class="p-3 font-mono font-bold text-slate-800">${esc(std.matricule)}</td>
-                        <td class="p-3 font-semibold text-slate-900">${esc(std.name)}</td>
+                        <td class="p-3 font-semibold text-slate-900">${esc(cleanStudentName(std.name))}</td>
                         <td class="p-3 text-center">
                             <div class="inline-flex rounded-lg shadow-sm border border-slate-200 p-0.5 bg-slate-100">
                                 <button onclick="setStudentAttendance('${esc(std.matricule)}', true)" class="px-2.5 py-1 text-xs font-bold rounded-md transition ${status === true ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:text-slate-900'}">
@@ -1734,9 +1782,14 @@
                                 </button>
                             </div>
                         </td>
+                        <td class="p-2 text-center">
+                            <button type="button" onclick="removeStudentFromUeList('${esc(std.matricule)}')" title="Retirer de la liste de cette UE" aria-label="Retirer ${esc(cleanStudentName(std.name))} de la liste de cette UE" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
-            }).join('') : `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
+            }).join('') : `<tr><td colspan="5" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
 
             document.getElementById('attendanceTotalCount').textContent = students.length;
             document.getElementById('attendancePresentCount').textContent = presentCount;
@@ -1757,12 +1810,13 @@
             if (!ue) return;
 
             const selectedDate = document.getElementById('attendanceDatePicker').value;
-            const attendance = ue.attendance || {};
-            if (!attendance[selectedDate]) attendance[selectedDate] = {};
-
-            attendance[selectedDate][matricule] = isPresent;
+            const attendance = attendanceForGroup(ue);
+            const updatedAttendance = {
+                ...attendance,
+                [selectedDate]: { ...(attendance[selectedDate] || {}), [matricule]: isPresent }
+            };
             document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
-            await updUe(activeUeId, { attendance: attendance });
+            if (await saveAttendanceForGroup(ue, activeStudentGroup, updatedAttendance)) renderAttendanceTable();
         };
 
         window.markAllPresent = async function() {
@@ -1771,49 +1825,49 @@
 
             const selectedDate = document.getElementById('attendanceDatePicker').value;
             const students = studentsForUe(ue);
-            const attendance = ue.attendance || {};
-            attendance[selectedDate] = {};
-
+            const attendance = { ...attendanceForGroup(ue), [selectedDate]: {} };
             students.forEach(std => { attendance[selectedDate][std.matricule] = true; });
-            await updUe(activeUeId, { attendance: attendance });
+            if (!(await saveAttendanceForGroup(ue, activeStudentGroup, attendance))) return;
             document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
+            renderAttendanceTable();
             showToast("Tous les étudiants ont été marqués présents.", "success");
         };
 
         window.confirmAttendanceCall = async function() {
             const ue = uesData[activeUeId];
             if (!ue) return;
+            const group = activeStudentGroup;
             const selectedDate = document.getElementById('attendanceDatePicker').value;
-            const students = studentsForUe(ue);
+            const students = studentsForUe(ue, group);
             if (!students.length) { showToast("Aucun étudiant dans la liste d'appel.", "error"); return; }
-            if (!confirm(`Confirmer l'appel du ${selectedDate} ? Les étudiants non pointés seront enregistrés absents.`)) return;
+            if (!confirm(`Confirmer l'appel de ${studentGroupLabel(group)} du ${selectedDate} ? Les étudiants non pointés seront enregistrés absents.`)) return;
 
-            const records = { ...((ue.attendance || {})[selectedDate] || {}) };
+            const records = { ...(attendanceForGroup(ue)[selectedDate] || {}) };
             students.forEach(std => { if (typeof records[std.matricule] !== 'boolean') records[std.matricule] = false; });
             const sessions = Array.isArray(ue.attendanceSessions) ? ue.attendanceSessions.slice() : [];
-            const callNumber = sessions.filter(session => session.date === selectedDate).length + 1;
-            const session = { id: `${selectedDate}_${Date.now()}`, date: selectedDate, callNumber, createdAt: new Date().toISOString(), records };
-            const attendance = { ...(ue.attendance || {}), [selectedDate]: records };
-            const saved = await updUe(activeUeId, { attendance, attendanceSessions: [...sessions, session] });
+            const callNumber = sessions.filter(session => session.date === selectedDate && (session.group || 'group1') === group).length + 1;
+            const session = { id: `${group}_${selectedDate}_${Date.now()}`, group, date: selectedDate, callNumber, createdAt: new Date().toISOString(), records };
+            const attendance = { ...(attendanceForGroup(ue)), [selectedDate]: records };
+            const groupAttendance = { ...(ue.groupAttendance || {}), [group]: attendance };
+            const saved = await updUe(activeUeId, { [`groupAttendance.${group}`]: attendance, attendanceSessions: [...sessions, session] });
             if (!saved) return;
-            ue.attendance = attendance;
+            ue.groupAttendance = groupAttendance;
             ue.attendanceSessions = [...sessions, session];
             renderAttendanceTable();
             const status = document.getElementById('attendanceConfirmationStatus');
-            status.textContent = `Appel n° ${callNumber} du ${selectedDate} confirmé et archivé. Le PDF est téléchargé.`;
+            status.textContent = `${studentGroupLabel(group)} : appel n° ${callNumber} du ${selectedDate} confirmé et archivé. Le PDF est téléchargé.`;
             status.classList.remove('hidden');
-            generateAttendancePdf(records, callNumber);
+            generateAttendancePdf(records, callNumber, group);
         };
 
         window.startNewAttendanceCall = async function() {
             const ue = uesData[activeUeId];
             if (!ue) return;
             const selectedDate = document.getElementById('attendanceDatePicker').value;
-            if (!confirm(`Démarrer un nouvel appel pour le ${selectedDate} ? Les appels déjà confirmés restent archivés.`)) return;
-            const attendance = { ...(ue.attendance || {}), [selectedDate]: {} };
-            const saved = await updUe(activeUeId, { attendance });
+            if (!confirm(`Démarrer un nouvel appel pour ${studentGroupLabel()} le ${selectedDate} ? Les appels déjà confirmés restent archivés.`)) return;
+            const attendance = { ...attendanceForGroup(ue), [selectedDate]: {} };
+            const saved = await saveAttendanceForGroup(ue, activeStudentGroup, attendance);
             if (!saved) return;
-            ue.attendance = attendance;
             document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
             renderAttendanceTable();
         };
@@ -1850,15 +1904,70 @@
         };
 
         // Tableau de bord Admin
-        function studentsForUe(ue) {
+        function studentsForUe(ue, group = activeStudentGroup) {
             if (!ue) return [];
+            const groupLists = ue.studentGroups || {};
+            if (Array.isArray(groupLists[group])) return sortStudentsAlphabetically(groupLists[group]);
+            if (group !== 'group1') return [];
+            if (ue.studentListOverride && Array.isArray(ue.studentList)) return sortStudentsAlphabetically(ue.studentList);
             const students = Array.isArray(ue.studentList) && ue.studentList.length ? ue.studentList : (classLists[ue.level] || []);
-            return students.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'fr', { sensitivity: 'base' }) || String(a.matricule || '').localeCompare(String(b.matricule || '')));
+            return sortStudentsAlphabetically(students);
+        }
+
+        function cleanStudentName(value) {
+            return String(value || '').trim()
+                .replace(/^\[?(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{1,2}-\d{1,2})\]?,?(?:\s+|T)\d{1,2}:\d{2}(?::\d{2})?(?:\s*(?:am|pm))?\]?\s*[-:]?\s*/i, '')
+                .replace(/\s+/g, ' ').trim();
+        }
+
+        function normalizeStudentText(value) {
+            return cleanStudentName(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr');
+        }
+
+        function compareStudentsAlphabetically(a, b) {
+            return normalizeStudentText(a.name).localeCompare(normalizeStudentText(b.name), 'fr', { numeric: true })
+                || String(a.matricule || '').localeCompare(String(b.matricule || ''), 'fr', { numeric: true });
+        }
+
+        function sortStudentsAlphabetically(students) {
+            return (Array.isArray(students) ? students : []).slice().sort(compareStudentsAlphabetically);
+        }
+
+        function studentGroupLabel(group = activeStudentGroup) {
+            return STUDENT_GROUP_LABELS[group] || STUDENT_GROUP_LABELS.group1;
+        }
+
+        function studentGradesForGroup(ue, group = activeStudentGroup) {
+            const groupGrades = ue?.studentGroupGrades?.[group];
+            if (groupGrades && typeof groupGrades === 'object') return groupGrades;
+            return group === 'group1' ? (ue?.studentGrades || {}) : {};
+        }
+
+        function attendanceForGroup(ue, group = activeStudentGroup) {
+            const groupAttendance = ue?.groupAttendance || {};
+            if (Object.prototype.hasOwnProperty.call(groupAttendance, group)) return groupAttendance[group] || {};
+            return group === 'group1' ? (ue?.attendance || {}) : {};
+        }
+
+        async function saveStudentGroupRoster(ue, group, students) {
+            const studentGroups = { ...(ue.studentGroups || {}), [group]: sortStudentsAlphabetically(students) };
+            const saved = await updUe(activeUeId, { [`studentGroups.${group}`]: studentGroups[group] });
+            if (saved) ue.studentGroups = studentGroups;
+            return saved;
+        }
+
+        function mergeStudentsByMatricule(existingStudents, importedStudents) {
+            const studentsByMatricule = new Map();
+            [...(existingStudents || []), ...(importedStudents || [])].forEach(student => {
+                const normalized = normalizeStudent(student?.matricule, student?.name);
+                if (normalized) studentsByMatricule.set(normalized.matricule, normalized);
+            });
+            return sortStudentsAlphabetically([...studentsByMatricule.values()]);
         }
 
         function normalizeStudent(mat, name) {
             const matricule = String(mat || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-            const nom = String(name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+            const nom = cleanStudentName(name).toUpperCase();
             if (matricule.length < 3 || nom.length < 2) return null;
             if (/^(MATRICULE|NOM|N°|NO|NAME|#)$/.test(matricule) || /^(NOM|PRENOM|PRÉNOM|NAME|ETUDIANT|ÉTUDIANT)$/.test(nom)) return null;
             return { matricule, name: nom };
@@ -1890,6 +1999,7 @@
             const file = event.target.files[0];
             if (!file) return;
             pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingStudentGroup = pendingImportMode === 'ue' ? activeStudentGroup : 'group1';
             pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
             const fileName = file.name.toLowerCase();
 
@@ -1943,6 +2053,7 @@
 
         window.openPasteListModal = function(mode) {
             pendingImportMode = mode === 'ue' ? 'ue' : 'level';
+            pendingStudentGroup = pendingImportMode === 'ue' ? activeStudentGroup : 'group1';
             pendingTargetLevel = parseInt(document.getElementById('importLevelSelect')?.value || '1', 10);
             document.getElementById('pasteListTextarea').value = '';
             document.getElementById('modalPasteList').classList.remove('hidden');
@@ -1980,19 +2091,19 @@
                 alert("Aucun étudiant valide trouvé. Format attendu : MATRICULE Nom et Prénoms (Excel : colonnes Matricule et Nom).");
                 return;
             }
-            pendingImportedStudents = students;
-            const previewHtml = students.slice(0, 12).map(s => `${esc(s.matricule)} — ${esc(s.name)}`).join('<br>') + (students.length > 12 ? `<br>… +${students.length - 12} autres` : '');
+            pendingImportedStudents = sortStudentsAlphabetically(students);
+            const previewHtml = pendingImportedStudents.slice(0, 12).map(s => `${esc(s.matricule)} — ${esc(s.name)}`).join('<br>') + (pendingImportedStudents.length > 12 ? `<br>… +${pendingImportedStudents.length - 12} autres` : '');
             const where = pendingImportMode === 'ue'
-                ? `ce cours (${activeUeId || 'UE'})`
+                ? `${studentGroupLabel(pendingStudentGroup)} de ce cours (${activeUeId || 'UE'})`
                 : `le Niveau ${pendingTargetLevel}`;
             const adminFb = document.getElementById('importFeedback');
             const teacherFb = document.getElementById('teacherImportFeedback');
             if (pendingImportMode === 'ue' && teacherFb) {
-                document.getElementById('teacherImportFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) pour ${where}.`;
+                document.getElementById('teacherImportFeedbackText').textContent = `${pendingImportedStudents.length} étudiant(s) prêt(s) à ajouter à ${where}. Les matricules déjà présents seront actualisés.`;
                 teacherFb.classList.remove('hidden');
                 if (adminFb) adminFb.classList.add('hidden');
             } else if (adminFb) {
-                document.getElementById('importFeedbackText').textContent = `${students.length} étudiant(s) prêt(s) à être enregistré(s) pour ${where}.`;
+                document.getElementById('importFeedbackText').textContent = `${pendingImportedStudents.length} étudiant(s) prêt(s) à ajouter à ${where}. Les matricules déjà présents seront actualisés.`;
                 const preview = document.getElementById('importPreviewTable');
                 if (preview) preview.innerHTML = previewHtml;
                 adminFb.classList.remove('hidden');
@@ -2005,14 +2116,26 @@
             try {
                 if (pendingImportMode === 'ue') {
                     if (!activeUeId) { showToast("Ouvrez d'abord un cours pour y importer la liste.", "error"); return; }
-                    await updUe(activeUeId, { studentList: pendingImportedStudents });
-                    showToast(`${pendingImportedStudents.length} étudiant(s) enregistrés pour l'appel de ${activeUeId}.`, "success");
+                    const ue = uesData[activeUeId];
+                    const existingStudents = studentsForUe(ue, pendingStudentGroup);
+                    const existingMatricules = new Set(existingStudents.map(student => student.matricule));
+                    const mergedStudents = mergeStudentsByMatricule(existingStudents, pendingImportedStudents);
+                    const addedCount = mergedStudents.filter(student => !existingMatricules.has(student.matricule)).length;
+                    const saved = await saveStudentGroupRoster(ue, pendingStudentGroup, mergedStudents);
+                    if (!saved) return;
+                    showToast(`${studentGroupLabel(pendingStudentGroup)} : ${mergedStudents.length} étudiant(s) au total, ${addedCount} nouveau(x).`, "success");
                     renderAttendanceTable();
                     renderCcTable();
                 } else {
                     if (!isAdminLoggedIn) { showToast("Seul l'administrateur peut enregistrer une liste de niveau.", "error"); return; }
-                    await setDoc(doc(db, "system", "class_lists"), { [`level${pendingTargetLevel}`]: pendingImportedStudents }, { merge: true });
-                    showToast(`Liste du Niveau ${pendingTargetLevel} (${pendingImportedStudents.length} étudiants) sauvegardée.`, "success");
+                    const existingStudents = classLists[pendingTargetLevel] || [];
+                    const existingMatricules = new Set(existingStudents.map(student => student.matricule));
+                    const mergedStudents = mergeStudentsByMatricule(existingStudents, pendingImportedStudents);
+                    const addedCount = mergedStudents.filter(student => !existingMatricules.has(student.matricule)).length;
+                    await setDoc(doc(db, "system", "class_lists"), { [`level${pendingTargetLevel}`]: mergedStudents }, { merge: true });
+                    classLists[pendingTargetLevel] = mergedStudents;
+                    renderClassListStats();
+                    showToast(`Niveau ${pendingTargetLevel} : ${mergedStudents.length} étudiant(s) au total, ${addedCount} nouveau(x).`, "success");
                 }
                 document.getElementById('importFeedback')?.classList.add('hidden');
                 document.getElementById('teacherImportFeedback')?.classList.add('hidden');
@@ -2031,14 +2154,42 @@
                 document.getElementById('teacherStudentNameInput')?.value
             );
             if (!s) { showToast("Indiquez un matricule et un nom valides.", "error"); return; }
-            const list = studentsForUe(ue).slice();
-            if (list.some(x => x.matricule === s.matricule)) {
-                list.forEach((x, i) => { if (x.matricule === s.matricule) list[i] = s; });
-            } else list.push(s);
-            await updUe(activeUeId, { studentList: list });
+            const list = mergeStudentsByMatricule(studentsForUe(ue), [s]);
+            if (!(await saveStudentGroupRoster(ue, activeStudentGroup, list))) return;
             document.getElementById('teacherStudentMatInput').value = '';
             document.getElementById('teacherStudentNameInput').value = '';
-            showToast(`${s.name} ajouté à la liste d'appel.`, "success");
+            renderAttendanceTable();
+            renderCcTable();
+            showToast(`${s.name} ajouté à ${studentGroupLabel()}.`, "success");
+        };
+
+        window.removeStudentFromUeList = async function(matricule) {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const student = studentsForUe(ue).find(item => item.matricule === matricule);
+            if (!student) return;
+            if (!confirm(`Retirer ${cleanStudentName(student.name)} de ${studentGroupLabel()} ? Ses anciennes notes et présences seront conservées.`)) return;
+
+            const studentList = sortStudentsAlphabetically(studentsForUe(ue).filter(item => item.matricule !== matricule));
+            const saved = await saveStudentGroupRoster(ue, activeStudentGroup, studentList);
+            if (!saved) return;
+            renderAttendanceTable();
+            renderCcTable();
+            showToast(`${cleanStudentName(student.name)} retiré de ${studentGroupLabel()}.`, "success");
+        };
+
+        window.clearUeStudentList = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const students = studentsForUe(ue);
+            if (!students.length) { showToast("La liste de cette UE est déjà vide.", "info"); return; }
+            if (!confirm(`Vider ${studentGroupLabel()} (${students.length} étudiants) ? L'autre groupe, la liste du niveau et les anciennes notes/présences seront conservés.`)) return;
+
+            const saved = await saveStudentGroupRoster(ue, activeStudentGroup, []);
+            if (!saved) return;
+            renderAttendanceTable();
+            renderCcTable();
+            showToast(`${studentGroupLabel()} a été vidé. Les anciens historiques sont conservés.`, "success");
         };
 
         // PDF Exports
@@ -2075,11 +2226,11 @@
             doc.setFont("helvetica", "normal");
             doc.text(`Unité d'Enseignement : ${esc(ue.code)} - ${ue.title || 'Non renseigné'}`, 14, 50);
             doc.text(`Enseignant titulaire : ${ue.teacherName || 'Non défini'}`, 14, 55);
-            doc.text(`Promotion : Niveau ${ue.level} | Semestre ${ue.semester} | Année Académique : ${academicYear()}`, 14, 60);
+            doc.text(`Promotion : Niveau ${ue.level} | ${studentGroupLabel()} | Semestre ${ue.semester} | Année Académique : ${academicYear()}`, 14, 60);
 
             const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
-            const grades = ue.studentGrades || {};
+            const grades = studentGradesForGroup(ue);
 
             const headers = [["N°", "Matricule", "Nom et Prénoms", ...evals.map(e => `${e.title}\n(/${e.max})`), "Moyenne\n/ 20"]];
             const body = students.map((std, i) => {
@@ -2098,7 +2249,7 @@
                 });
 
                 const final = count > 0 ? (sumWeighted / count).toFixed(2) : "-";
-                return [i + 1, std.matricule, std.name, ...evalScores, final];
+                return [i + 1, std.matricule, cleanStudentName(std.name), ...evalScores, final];
             });
 
             doc.autoTable({
@@ -2121,7 +2272,7 @@
             doc.text(`Fait à Yaoundé, le ${new Date().toLocaleDateString('fr-FR')}`, 130, finalY + 15);
             doc.text("Signature de l'Enseignant :", 130, finalY + 22);
 
-            doc.save(`PV_CC_${esc(ue.code)}_Niveau${ue.level}.pdf`);
+            doc.save(`PV_CC_${esc(ue.code)}_Niveau${ue.level}_${activeStudentGroup}.pdf`);
             showToast("PV officiel de Contrôle Continu généré !", "success");
         };
 
@@ -2130,12 +2281,12 @@
             if (!ue) return;
             const students = studentsForUe(ue);
             const evals = ue.evaluations || [];
-            const grades = ue.studentGrades || {};
+            const grades = studentGradesForGroup(ue);
             if (!students.length) { showToast("Aucune liste d'étudiants à exporter.", "warning"); return; }
             const safe = (v) => (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v;
             const rows = [
                 [`PV des notes de CC — ${ue.code} ${ue.title || ''}`],
-                [`Enseignant : ${ue.teacherName || ''} | Niveau ${ue.level} | Semestre ${ue.semester} | ${academicYear()}`],
+                [`Enseignant : ${ue.teacherName || ''} | Niveau ${ue.level} | ${studentGroupLabel()} | Semestre ${ue.semester} | ${academicYear()}`],
                 [],
                 ["N°", "Matricule", "Nom et Prénoms", ...evals.map(e => `${e.title} (/${e.max})`), "Moyenne CC /20"]
             ];
@@ -2147,17 +2298,17 @@
                     if (v !== undefined && !isNaN(v)) { sum += (parseFloat(v) / ev.max) * 20; count++; return parseFloat(v); }
                     return "";
                 });
-                rows.push([i + 1, safe(std.matricule), safe(std.name), ...cells, count ? Math.round((sum / count) * 100) / 100 : ""]);
+                rows.push([i + 1, safe(std.matricule), safe(cleanStudentName(std.name)), ...cells, count ? Math.round((sum / count) * 100) / 100 : ""]);
             });
             const ws = XLSX.utils.aoa_to_sheet(rows);
             ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 36 }, ...evals.map(() => ({ wch: 16 })), { wch: 16 }];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, ue.code);
-            XLSX.writeFile(wb, `Notes_CC_${ue.code}_Niveau${ue.level}.xlsx`);
+            XLSX.writeFile(wb, `Notes_CC_${ue.code}_Niveau${ue.level}_${activeStudentGroup}.xlsx`);
             showToast("Fichier Excel téléchargé.", "success");
         };
 
-        window.generateAttendancePdf = function(recordsOverride = null, callNumber = null) {
+        window.generateAttendancePdf = function(recordsOverride = null, callNumber = null, group = activeStudentGroup) {
             const ue = uesData[activeUeId];
             if (!ue) return;
 
@@ -2172,15 +2323,15 @@
             doc.setFontSize(9);
             doc.setFont("helvetica", "normal");
             doc.text(`Matière : ${esc(ue.code)} (${ue.title || ''}) | Enseignant : ${ue.teacherName || ''}`, 14, 28);
-            doc.text(`Date de séance : ${selectedDate}${callNumber ? ` | Appel n° ${callNumber}` : ''} | Salle : ${ue.room || 'UY1'}`, 14, 33);
+            doc.text(`Date : ${selectedDate} | ${studentGroupLabel(group)}${callNumber ? ` | Appel n° ${callNumber}` : ''} | Salle : ${ue.room || 'UY1'}`, 14, 33);
 
-            const students = studentsForUe(ue);
-            const records = recordsOverride || ((ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {});
+            const students = studentsForUe(ue, group);
+            const records = recordsOverride || attendanceForGroup(ue, group)[selectedDate] || {};
 
             const body = students.map((std, i) => {
                 const status = records[std.matricule];
                 const statusText = status === true ? "PRÉSENT" : (status === false ? "ABSENT" : "NON POINTÉ");
-                return [i + 1, std.matricule, std.name, statusText];
+                return [i + 1, std.matricule, cleanStudentName(std.name), statusText];
             });
 
             doc.autoTable({
@@ -2192,7 +2343,7 @@
                 bodyStyles: { fontSize: 8 }
             });
 
-            doc.save(`Presence_${esc(ue.code)}_${selectedDate}${callNumber ? `_Appel${callNumber}` : ''}.pdf`);
+            doc.save(`Presence_${esc(ue.code)}_${selectedDate}_${group}${callNumber ? `_Appel${callNumber}` : ''}.pdf`);
             showToast("Fiche d'appel téléchargée en PDF.", "success");
         };
 

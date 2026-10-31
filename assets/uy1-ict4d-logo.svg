@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title">
+  <title id="title">Logo UY1 ICT4D</title>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2468ed"/>
+      <stop offset="1" stop-color="#08b6c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#background)"/>
+  <path d="M22 64 96 34l74 30-74 31z" fill="#fff"/>
+  <path d="m52 77 44 18 44-18v35c0 12-19 22-44 22s-44-10-44-22z" fill="#f5fbff"/>
+  <path d="M52 80v31c0 12 19 22 44 22s44-10 44-22V80L96 98z" fill="#fff"/>
+  <path d="M157 66v36" fill="none" stroke="#ffd84d" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="157" cy="112" r="7" fill="#ffd84d"/>
+  <path d="m54 157 27-16 29 8 28-17" fill="none" stroke="#ffd84d" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="140" cy="132" r="7" fill="#ffd84d"/>
+</svg>
