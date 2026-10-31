@@ -310,6 +310,7 @@
                         </div>
                     </div>
 
+                    <input type="search" id="ccStudentSearch" oninput="renderCcTable()" placeholder="Rechercher un nom ou un matricule..." aria-label="Rechercher un étudiant dans les CC" class="w-full sm:max-w-sm mb-3 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500">
                     <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
                         <table class="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
@@ -344,6 +345,8 @@
                                 <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
                                 <span>Export Fiche Appel (PDF)</span>
                             </button>
+                            <button onclick="confirmAttendanceCall()" class="px-3.5 py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold">Confirmer et télécharger</button>
+                            <button onclick="startNewAttendanceCall()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Nouvel appel</button>
                         </div>
                     </div>
 
@@ -387,6 +390,10 @@
                             <div id="attendanceRate" class="text-xl font-bold text-sky-900">0%</div>
                         </div>
                     </div>
+
+                    <p id="attendanceConfirmationStatus" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800" role="status" aria-live="polite"></p>
+
+                    <input type="search" id="attendanceStudentSearch" oninput="renderAttendanceTable()" placeholder="Rechercher un nom ou un matricule..." aria-label="Rechercher un étudiant" class="w-full sm:max-w-sm px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500">
 
                     <div class="overflow-x-auto border border-slate-200 rounded-xl custom-scrollbar">
                         <table class="w-full text-left border-collapse text-xs sm:text-sm">
@@ -920,7 +927,7 @@
         const ROOM_BY_LEVEL = { 1: 'R101', 2: 'S003/S008', 3: 'S107' }; // L1 : R101, L2 : S003/S008, L3 : S107, quel que soit le semestre
 
         let currentUser = null, privUnsub = null, listUnsubs = [], assignments = {};
-        const PRIV = ['studentGrades', 'attendance', 'history', 'studentList'];
+        const PRIV = ['studentGrades', 'attendance', 'attendanceSessions', 'history', 'studentList'];
         async function updUe(code, data) {
             if (!navigator.onLine) showToast("Hors-ligne : modification enregistrée, envoi dès que la connexion revient.", "warning");
             const pub = {}, priv = {};
@@ -931,7 +938,8 @@
                 if (Object.keys(priv).length) jobs.push(updateDoc(doc(db, "ues_private", code), priv));
                 await Promise.all(jobs);
                 notifyFromChange(code, data);
-            } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); }
+                return true;
+            } catch (e) { console.error(e); showToast(e.code === 'permission-denied' ? "Action refusée : vous n'avez pas les droits nécessaires." : "Échec de l'enregistrement, vérifiez votre connexion.", "error"); return false; }
         }
         const authMsg = (e) => ({
             'auth/invalid-credential': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/wrong-password': "Email ou mot de passe incorrect. Mot de passe oublié ? Utilisez le lien ci-dessus.", 'auth/requires-recent-login': "Pour votre sécurité, reconnectez-vous puis réessayez.",
@@ -1147,7 +1155,7 @@
 
         window.exitAndLockTeacherWorkspace = function() {
             if (privUnsub) { privUnsub(); privUnsub = null; }
-            if (activeUeId && uesData[activeUeId]) Object.assign(uesData[activeUeId], { studentGrades: {}, attendance: {}, history: [] });
+            if (activeUeId && uesData[activeUeId]) Object.assign(uesData[activeUeId], { studentGrades: {}, attendance: {}, attendanceSessions: [], history: [] });
             activeUeId = null;
             if (!isAdminLoggedIn) signOut(auth);
             navigateTo(isAdminLoggedIn ? 'admin' : 'portal');
@@ -1332,7 +1340,10 @@
             const ue = uesData[activeUeId];
             if (!ue) return;
 
-            const students = studentsForUe(ue);
+            const students = studentsForUe(ue).slice().sort((a, b) => {
+                const normalizeName = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr');
+                return normalizeName(a.name).localeCompare(normalizeName(b.name), 'fr') || String(a.matricule || '').localeCompare(String(b.matricule || ''), 'fr', { numeric: true });
+            });
             const evals = ue.evaluations || [];
             const grades = ue.studentGrades || {};
 
@@ -1372,7 +1383,9 @@
                 return;
             }
 
-            tbody.innerHTML = students.map((std, idx) => {
+            const search = document.getElementById('ccStudentSearch')?.value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('fr') || '';
+            const visibleStudents = students.filter(std => `${std.name} ${std.matricule}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('fr').includes(search));
+            tbody.innerHTML = visibleStudents.length ? visibleStudents.map((std, idx) => {
                 const stdGrades = grades[std.matricule] || {};
                 let sumWeighted = 0;
                 let countEvaluated = 0;
@@ -1409,7 +1422,7 @@
                 `;
 
                 return `<tr class="hover:bg-slate-50 transition">${rowColsHtml}</tr>`;
-            }).join('');
+            }).join('') : `<tr><td colspan="${4 + evals.length}" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
 
             if (window.lucide) lucide.createIcons();
         };
@@ -1525,10 +1538,16 @@
                 return;
             }
 
-            tbody.innerHTML = students.map((std, idx) => {
+            students.forEach(std => {
                 const status = dateRecords[std.matricule];
                 if (status === true) presentCount++;
                 if (status === false) absentCount++;
+            });
+
+            const search = document.getElementById('attendanceStudentSearch')?.value.trim().toLocaleLowerCase('fr') || '';
+            const visibleStudents = students.filter(std => `${std.name} ${std.matricule}`.toLocaleLowerCase('fr').includes(search));
+            tbody.innerHTML = visibleStudents.length ? visibleStudents.map((std, idx) => {
+                const status = dateRecords[std.matricule];
 
                 return `
                     <tr class="hover:bg-slate-50 transition">
@@ -1547,7 +1566,7 @@
                         </td>
                     </tr>
                 `;
-            }).join('');
+            }).join('') : `<tr><td colspan="4" class="p-6 text-center text-slate-400 italic">Aucun étudiant ne correspond à cette recherche.</td></tr>`;
 
             document.getElementById('attendanceTotalCount').textContent = students.length;
             document.getElementById('attendancePresentCount').textContent = presentCount;
@@ -1558,7 +1577,10 @@
             if (window.lucide) lucide.createIcons();
         };
 
-        window.loadAttendanceForDate = function() { renderAttendanceTable(); };
+        window.loadAttendanceForDate = function() {
+            document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
+            renderAttendanceTable();
+        };
 
         window.setStudentAttendance = async function(matricule, isPresent) {
             const ue = uesData[activeUeId];
@@ -1569,6 +1591,7 @@
             if (!attendance[selectedDate]) attendance[selectedDate] = {};
 
             attendance[selectedDate][matricule] = isPresent;
+            document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
             await updUe(activeUeId, { attendance: attendance });
         };
 
@@ -1583,7 +1606,46 @@
 
             students.forEach(std => { attendance[selectedDate][std.matricule] = true; });
             await updUe(activeUeId, { attendance: attendance });
+            document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
             showToast("Tous les étudiants ont été marqués présents.", "success");
+        };
+
+        window.confirmAttendanceCall = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const selectedDate = document.getElementById('attendanceDatePicker').value;
+            const students = studentsForUe(ue);
+            if (!students.length) { showToast("Aucun étudiant dans la liste d'appel.", "error"); return; }
+            if (!confirm(`Confirmer l'appel du ${selectedDate} ? Les étudiants non pointés seront enregistrés absents.`)) return;
+
+            const records = { ...((ue.attendance || {})[selectedDate] || {}) };
+            students.forEach(std => { if (typeof records[std.matricule] !== 'boolean') records[std.matricule] = false; });
+            const sessions = Array.isArray(ue.attendanceSessions) ? ue.attendanceSessions.slice() : [];
+            const callNumber = sessions.filter(session => session.date === selectedDate).length + 1;
+            const session = { id: `${selectedDate}_${Date.now()}`, date: selectedDate, callNumber, createdAt: new Date().toISOString(), records };
+            const attendance = { ...(ue.attendance || {}), [selectedDate]: records };
+            const saved = await updUe(activeUeId, { attendance, attendanceSessions: [...sessions, session] });
+            if (!saved) return;
+            ue.attendance = attendance;
+            ue.attendanceSessions = [...sessions, session];
+            renderAttendanceTable();
+            const status = document.getElementById('attendanceConfirmationStatus');
+            status.textContent = `Appel n° ${callNumber} du ${selectedDate} confirmé et archivé. Le PDF est téléchargé.`;
+            status.classList.remove('hidden');
+            generateAttendancePdf(records, callNumber);
+        };
+
+        window.startNewAttendanceCall = async function() {
+            const ue = uesData[activeUeId];
+            if (!ue) return;
+            const selectedDate = document.getElementById('attendanceDatePicker').value;
+            if (!confirm(`Démarrer un nouvel appel pour le ${selectedDate} ? Les appels déjà confirmés restent archivés.`)) return;
+            const attendance = { ...(ue.attendance || {}), [selectedDate]: {} };
+            const saved = await updUe(activeUeId, { attendance });
+            if (!saved) return;
+            ue.attendance = attendance;
+            document.getElementById('attendanceConfirmationStatus')?.classList.add('hidden');
+            renderAttendanceTable();
         };
 
         window.renderHistoryList = function() {
@@ -1816,8 +1878,8 @@
 
         function studentsForUe(ue) {
             if (!ue) return [];
-            if (Array.isArray(ue.studentList) && ue.studentList.length) return ue.studentList;
-            return classLists[ue.level] || [];
+            const students = Array.isArray(ue.studentList) && ue.studentList.length ? ue.studentList : (classLists[ue.level] || []);
+            return students.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'fr', { sensitivity: 'base' }) || String(a.matricule || '').localeCompare(String(b.matricule || '')));
         }
 
         function normalizeStudent(mat, name) {
@@ -2128,7 +2190,7 @@
             showToast("Fichier Excel téléchargé.", "success");
         };
 
-        window.generateAttendancePdf = function() {
+        window.generateAttendancePdf = function(recordsOverride = null, callNumber = null) {
             const ue = uesData[activeUeId];
             if (!ue) return;
 
@@ -2143,10 +2205,10 @@
             doc.setFontSize(9);
             doc.setFont("helvetica", "normal");
             doc.text(`Matière : ${esc(ue.code)} (${ue.title || ''}) | Enseignant : ${ue.teacherName || ''}`, 14, 28);
-            doc.text(`Date de séance : ${selectedDate} | Salle : ${ue.room || 'UY1'}`, 14, 33);
+            doc.text(`Date de séance : ${selectedDate}${callNumber ? ` | Appel n° ${callNumber}` : ''} | Salle : ${ue.room || 'UY1'}`, 14, 33);
 
             const students = studentsForUe(ue);
-            const records = (ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {};
+            const records = recordsOverride || ((ue.attendance && ue.attendance[selectedDate]) ? ue.attendance[selectedDate] : {});
 
             const body = students.map((std, i) => {
                 const status = records[std.matricule];
@@ -2163,7 +2225,7 @@
                 bodyStyles: { fontSize: 8 }
             });
 
-            doc.save(`Presence_${esc(ue.code)}_${selectedDate}.pdf`);
+            doc.save(`Presence_${esc(ue.code)}_${selectedDate}${callNumber ? `_Appel${callNumber}` : ''}.pdf`);
             showToast("Fiche d'appel téléchargée en PDF.", "success");
         };
 
