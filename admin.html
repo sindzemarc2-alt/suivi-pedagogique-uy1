@@ -24,6 +24,7 @@
 
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@0.469.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
 
     <!-- Parsers de documents client-side -->
     <!-- 1. Excel parser (SheetJS) -->
@@ -59,6 +60,22 @@
         body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif}
         h1,h2,h3,.font-display{font-family:'Bricolage Grotesque','Figtree',sans-serif;letter-spacing:-.01em}
         .hero{background:radial-gradient(120% 150% at 0% 0%,var(--ink2) 0%,var(--ink) 62%);box-shadow:0 24px 50px -28px rgba(11,37,69,.75)}
+        .hero-tagline{min-height:1.25rem;color:var(--signal);font-size:.82rem;font-weight:700}
+        .hero-caret{display:inline-block;margin-left:2px}
+        .brand-stage{perspective:950px;transform-style:preserve-3d}
+        .brand-logo{transform-style:preserve-3d;filter:drop-shadow(0 12px 16px rgba(0,0,0,.2))}
+        .brand-star{position:absolute;color:#ffd166;text-shadow:0 0 12px rgba(255,209,102,.6);will-change:transform,opacity}
+        .brand-star-a{top:2%;left:18%;font-size:1.1rem}
+        .brand-star-b{top:16%;right:5%;font-size:.85rem}
+        .brand-star-c{bottom:9%;left:4%;font-size:.9rem}
+        .brand-star-d{right:12%;bottom:0;font-size:1.15rem}
+        .teacher-overview-card{transform-style:preserve-3d;backface-visibility:hidden}
+        .teacher-welcome-window{max-width:34rem;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+        .teacher-welcome-track{display:flex;width:max-content;gap:2rem;white-space:nowrap;will-change:transform}
+        .teacher-welcome-copy{display:block;white-space:nowrap}
+        .teacher-welcome-copy[aria-hidden="true"]{display:none}
+        .teacher-welcome-track.is-looping .teacher-welcome-copy[aria-hidden="true"]{display:block}
+        @media (prefers-reduced-motion:reduce){.teacher-welcome-window{mask-image:none}.teacher-welcome-track{display:block;width:auto;white-space:normal}.teacher-welcome-track.is-looping .teacher-welcome-copy[aria-hidden="true"]{display:none}}
         .board-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2rem,5vw,3.1rem);line-height:1;color:var(--signal);font-variant-numeric:tabular-nums}
         .board dt{margin-top:.4rem;font-size:.72rem;line-height:1.25;color:rgba(224,239,254,.78)}
         #uesGrid>div{border-radius:1.25rem;transition:transform .18s ease,box-shadow .18s ease,border-color .18s}
@@ -66,8 +83,6 @@
         .bar-fill{width:var(--w)}
         @keyframes grow{from{width:0}}
         html.intro .bar-fill,html.intro #statBar{animation:grow .9s cubic-bezier(.2,.7,.2,1) both}
-        @keyframes viewIn{from{opacity:0;transform:translateY(6px)}}
-        #view-portal,#view-teacher,#view-admin{animation:viewIn .22s ease-out}
         :focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
         @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
         .bot-msg{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;line-height:1.45}
@@ -84,14 +99,9 @@
         @keyframes fadeIn{from{opacity:0}}
         @keyframes modalIn{from{opacity:0;transform:translateY(14px) scale(.98)}}
         @keyframes toastIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
-        @keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
         [id^="modal"]:not(.hidden){animation:fadeIn .18s ease-out}
         [id^="modal"]:not(.hidden)>div,#botPanel:not(.hidden){animation:modalIn .26s cubic-bezier(.2,.8,.2,1)}
         #toastContainer>*{animation:toastIn .22s ease-out}
-        html.intro #uesGrid>div{animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both}
-        html.intro #uesGrid>div:nth-child(2){animation-delay:.04s}html.intro #uesGrid>div:nth-child(3){animation-delay:.08s}
-        html.intro #uesGrid>div:nth-child(4){animation-delay:.12s}html.intro #uesGrid>div:nth-child(5){animation-delay:.16s}
-        html.intro #uesGrid>div:nth-child(6){animation-delay:.2s}html.intro #uesGrid>div:nth-child(n+7){animation-delay:.24s}
         #uesGrid>div:active{transform:scale(.985)}
         .overflow-x-auto{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
         /* Téléphone et tablette tactile : zones de toucher confortables, pas de zoom automatique */
@@ -204,23 +214,30 @@
                         <span>•</span>
                         <span id="activeUeLevelSem" class="text-sky-700 font-semibold">Niveau 1 - S1</span>
                     </p>
+                    <p id="teacherWelcomeMessage" class="teacher-welcome-window mt-2 text-sm font-bold text-sky-800" aria-label="Bienvenue dans votre espace de travail">
+                        <span id="teacherWelcomeTrack" class="teacher-welcome-track">
+                            <span id="teacherWelcomeText" class="teacher-welcome-copy">Bienvenue dans votre espace de travail</span>
+                            <span id="teacherWelcomeTextClone" class="teacher-welcome-copy" aria-hidden="true">Bienvenue dans votre espace de travail</span>
+                            <span id="teacherWelcomeTextClone2" class="teacher-welcome-copy" aria-hidden="true">Bienvenue dans votre espace de travail</span>
+                        </span>
+                    </p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="openAccountModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
+                    <button onclick="openAccountModal()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-sky-300 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition shadow-sm hover:shadow">
                         <i data-lucide="key-round" class="w-4 h-4 text-slate-500"></i>
                         <span>Mon compte</span>
                     </button>
-                    <button onclick="exitAndLockTeacherWorkspace()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition shadow">
-                        <i data-lucide="lock" class="w-4 h-4"></i>
-                        <span>Quitter & Verrouiller l'UE</span>
+                    <button onclick="exitAndLockTeacherWorkspace()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition">
+                        <i data-lucide="lock" class="w-4 h-4 text-slate-500"></i>
+                        <span>Verrouiller l'UE</span>
                     </button>
                 </div>
             </div>
 
             <!-- Boîtes d'informations de cours -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div id="teacherOverviewCards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="teacher-overview-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Volume Horaire</span>
                         <i data-lucide="clock" class="w-5 h-5 text-sky-600"></i>
@@ -238,7 +255,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <div class="teacher-overview-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Salle & Créneau</span>
                         <i data-lucide="map-pin" class="w-5 h-5 text-indigo-600"></i>
@@ -252,17 +269,17 @@
                     </p>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="teacher-overview-card bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
                     <div>
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pointage de Séance</span>
                         <p class="text-xs text-slate-500 mt-1">Validez votre présence pour comptabiliser automatiquement 3h de cours.</p>
                     </div>
                     <div class="space-y-2">
-                        <button onclick="confirmTeacherPresenceSession()" class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-sm">
+                        <button onclick="confirmTeacherPresenceSession()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition">
                             <i data-lucide="check-circle" class="w-4 h-4"></i>
                             <span>Confirmer ma séance (+3h)</span>
                         </button>
-                        <button onclick="toggleTeacherAbsence()" id="btnSignalAbsence" class="w-full py-1.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition">
+                        <button onclick="toggleTeacherAbsence()" id="btnSignalAbsence" class="w-full py-1.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition">
                             <i data-lucide="bell-off" class="w-3.5 h-3.5"></i>
                             <span id="btnSignalAbsenceText">Signaler mon indisponibilité</span>
                         </button>
@@ -448,7 +465,7 @@
 
         <!-- VUE 3 : TABLEAU DE BORD SUPERVISEUR ADMIN -->
         <div id="view-admin" class="hidden space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-lg border border-sky-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div id="adminDashboardHero" class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white p-5 sm:p-6 rounded-2xl shadow-lg border border-sky-800 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_120px] items-center gap-5">
                 <div>
                     <div class="flex items-center space-x-3">
                         <div class="p-2 bg-sky-500/20 rounded-xl border border-sky-400/30 text-sky-300">
@@ -458,6 +475,9 @@
                     </div>
                     <p class="text-sky-200/80 text-xs sm:text-sm mt-2 max-w-2xl">
                         Surveillance en direct des cours, progression horaire, attribution des UE par email, occupation des salles et import des listes.
+                    </p>
+                    <p class="hero-tagline mt-2" aria-label="ICT4D, Solution Provider">
+                        <span id="adminTaglineText" aria-hidden="true">ICT4D • Solution Provider</span><span id="adminTaglineCaret" class="hero-caret" aria-hidden="true">|</span>
                     </p>
                 </div>
 
@@ -471,6 +491,13 @@
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                         <span>Déconnexion Sécurisée</span>
                     </button>
+                </div>
+                <div id="adminBrandStage" class="brand-stage relative mx-auto h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28" aria-hidden="true">
+                    <span class="brand-star brand-star-a" data-brand-star>✦</span>
+                    <span class="brand-star brand-star-b" data-brand-star>✧</span>
+                    <span class="brand-star brand-star-c" data-brand-star>✧</span>
+                    <span class="brand-star brand-star-d" data-brand-star>✦</span>
+                    <img id="adminBrandLogo" src="assets/uy1-ict4d-logo.svg" alt="" class="brand-logo h-full w-full rounded-3xl object-cover">
                 </div>
             </div>
 
@@ -1019,12 +1046,113 @@
         // DÉCLARATION DE TOUTES LES FONCTIONS GLOBALES
         // ==========================================
 
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function animateGsapEntrance(targets, options = {}) {
+            if (reduceMotion || !window.gsap || !targets) return;
+            window.gsap.fromTo(targets, { autoAlpha: 0, y: 8 }, {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.32,
+                stagger: 0.035,
+                ease: 'power2.out',
+                clearProps: 'opacity,visibility,transform',
+                ...options
+            });
+        }
+
+        function animateTeacherWorkspace() {
+            if (reduceMotion || !window.gsap) return;
+            const welcome = document.getElementById('teacherWelcomeMessage');
+            const welcomeTrack = document.getElementById('teacherWelcomeTrack');
+            const cards = document.querySelectorAll('#teacherOverviewCards .teacher-overview-card');
+            const actions = document.querySelectorAll('#view-teacher > div:first-child button');
+            if (welcome) window.gsap.fromTo(welcome, { autoAlpha: 0, y: 12, rotationY: -24, transformPerspective: 850 }, {
+                autoAlpha: 1,
+                y: 0,
+                rotationY: 0,
+                duration: 0.72,
+                ease: 'back.out(1.45)',
+                clearProps: 'opacity,visibility,transform,transformPerspective'
+            });
+            if (welcomeTrack) {
+                const firstCopy = welcomeTrack.querySelector('.teacher-welcome-copy');
+                const gap = parseFloat(getComputedStyle(welcomeTrack).columnGap) || 0;
+                const distance = firstCopy ? firstCopy.getBoundingClientRect().width + gap : 0;
+                if (distance > 0) {
+                    welcomeTrack.classList.add('is-looping');
+                    window.gsap.killTweensOf(welcomeTrack);
+                    window.gsap.set(welcomeTrack, { x: 0 });
+                    window.gsap.to(welcomeTrack, { x: -distance, duration: Math.max(7, distance / 30), repeat: -1, ease: 'none' });
+                }
+            }
+            if (cards.length) window.gsap.fromTo(cards, { autoAlpha: 0, y: 18, z: -35, rotationY: 0, transformPerspective: 1000 }, {
+                autoAlpha: 1,
+                y: 0,
+                z: 0,
+                rotationY: 360,
+                duration: 1.05,
+                stagger: 0.13,
+                ease: 'power2.inOut',
+                clearProps: 'opacity,visibility,transform,transformPerspective'
+            });
+            if (actions.length) animateGsapEntrance(actions, { y: 8, rotationX: -8, transformPerspective: 700, stagger: 0.08, duration: 0.38, delay: 0.2 });
+        }
+
+        function animateBrandMotion(prefix) {
+            if (reduceMotion || !window.gsap) return;
+            const logo = document.getElementById(`${prefix}BrandLogo`);
+            const stage = document.getElementById(`${prefix}BrandStage`);
+            if (!logo || !stage || logo.dataset.gsapMotion) return;
+            logo.dataset.gsapMotion = 'true';
+
+            window.gsap.to(logo, {
+                rotationY: 360,
+                duration: 9,
+                repeat: -1,
+                ease: 'none',
+                transformPerspective: 900,
+                transformOrigin: '50% 50%'
+            });
+            window.gsap.to(stage.querySelectorAll('[data-brand-star]'), {
+                y: -5,
+                rotation: 18,
+                scale: 1.18,
+                autoAlpha: 0.7,
+                duration: 0.9,
+                repeat: -1,
+                yoyo: true,
+                stagger: 0.14,
+                ease: 'sine.inOut',
+                transformOrigin: '50% 50%'
+            });
+
+            const text = document.getElementById(`${prefix}TaglineText`);
+            if (text && !text.dataset.gsapTyping) {
+                text.dataset.gsapTyping = 'true';
+                const phrase = 'ICT4D • Solution Provider';
+                const state = { length: 0 };
+                const updateText = () => { text.textContent = phrase.slice(0, Math.floor(state.length)); };
+                window.gsap.timeline({ repeat: -1 })
+                    .to(state, { length: phrase.length, duration: 1.8, ease: 'none', onUpdate: updateText })
+                    .to({}, { duration: 1.35 })
+                    .to(state, { length: 0, duration: 0.65, ease: 'none', onUpdate: updateText })
+                    .to({}, { duration: 0.3 });
+                const caret = document.getElementById(`${prefix}TaglineCaret`);
+                if (caret) window.gsap.to(caret, { autoAlpha: 0, duration: 0.45, repeat: -1, yoyo: true, ease: 'none' });
+            }
+        }
+
         window.navigateTo = function(viewName) {
             if (viewName === 'portal') viewName = 'admin';
             if (!isAdminLoggedIn) viewName = 'locked'; // l'espace admin n'existe qu'après connexion par mot de passe
             ['view-locked', 'view-teacher', 'view-admin'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById('view-' + viewName).classList.remove('hidden');
-            if (viewName === 'admin') renderAdminDashboard();
+            const activeView = document.getElementById('view-' + viewName);
+            activeView.classList.remove('hidden');
+            if (viewName === 'admin') {
+                renderAdminDashboard();
+                animateBrandMotion('admin');
+            }
+            animateGsapEntrance(activeView, { stagger: 0, y: 10, duration: 0.3 });
             window.scrollTo({ top: 0, behavior: 'smooth' });
             updateGlobalAbsenceAlert();
             if (window.lucide) lucide.createIcons();
@@ -1049,6 +1177,7 @@
                     }
                 }
             });
+            animateGsapEntrance(document.getElementById(`teacherTabContent-${tab}`), { stagger: 0, y: 6, duration: 0.24 });
             if (window.lucide) lucide.createIcons();
         };
 
@@ -1272,6 +1401,7 @@
             renderActiveTeacherWorkspace();
             navigateTo('teacher');
             setTeacherTab('cc');
+            animateTeacherWorkspace();
         };
 
         window.renderKeepingFocus = function() {
@@ -1288,6 +1418,16 @@
             document.getElementById('activeUeCode').textContent = ue.code;
             document.getElementById('activeUeTitle').textContent = ue.title || "Intitulé du cours non défini";
             document.getElementById('activeUeTeacherName').textContent = ue.teacherName || "Non encore défini";
+            const welcomeName = ue.teacherName && !/^non encore défini$/i.test(ue.teacherName)
+                ? ue.teacherName
+                : (currentUser?.displayName || currentUser?.email?.split('@')[0] || 'enseignant');
+            const welcomeMessage = `Bienvenue, ${welcomeName} !`;
+            const welcome = document.getElementById('teacherWelcomeMessage');
+            welcome.setAttribute('aria-label', welcomeMessage);
+            ['teacherWelcomeText', 'teacherWelcomeTextClone', 'teacherWelcomeTextClone2'].forEach(id => {
+                const text = document.getElementById(id);
+                if (text) text.textContent = welcomeMessage;
+            });
             document.getElementById('activeUeLevelSem').textContent = `Niveau ${ue.level} - Semestre ${ue.semester}`;
 
             const hours = ue.hoursTaught || 0;
@@ -1303,7 +1443,7 @@
             const btnAbsence = document.getElementById('btnSignalAbsence');
             const btnAbsenceText = document.getElementById('btnSignalAbsenceText');
             if (ue.isAbsentToday) {
-                btnAbsence.className = "w-full py-1.5 px-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition";
+                btnAbsence.className = "w-full py-1.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition";
                 btnAbsenceText.textContent = "Je suis de retour (Annuler absence)";
             } else {
                 btnAbsence.className = "w-full py-1.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1 transition";
